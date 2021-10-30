@@ -199,6 +199,7 @@ int main(u16 hard)
 	for (int i = 0; i < HORIZONTAL_REZ; i++)
 	{
 		HscrollA[i] = SCROLL_CENTER;
+		HscrollB[i] = SCROLL_CENTER;
 		VscrollA[i] = 0;
 	}
 
