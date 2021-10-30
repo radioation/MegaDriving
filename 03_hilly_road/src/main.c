@@ -14,6 +14,7 @@ u16 lineDisplay = 0;
 
 // Horizontal Scrolling values
 s16 HscrollA[HORIZONTAL_REZ];
+s16 HscrollB[HORIZONTAL_REZ];
 // Vertical Scrolling values ( to simulate hills )
 s8 VscrollA[HORIZONTAL_REZ];
 
@@ -55,6 +56,7 @@ fix16 speed = FIX16(0.00);
 
 // position variables.
 fix16 segment_position = FIX16(0); // keep track of the segment position on screen
+fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
 s16 horizon_line = 223;							// keep track of where the horizon is
 
 void HIntHandler()
@@ -151,6 +153,13 @@ void update()
 		VscrollA[h] = -h;
 	}
 
+	// scroll the background
+	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
+	for (u16 y = 0; y < 120; ++y)
+	{
+		HscrollB[y] = fix16ToInt(background_position);
+	}
+
 	// Move segments
 	segment_position = fix16Add(segment_position, speed);
 	if (fix16ToInt(segment_position) < 0)
@@ -198,7 +207,10 @@ int main(u16 hard)
 	VDP_setPalette(PAL0, road.palette->data);
 	int ind = TILE_USERINDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
-	
+	ind += road.tileset->numTile;
+	VDP_setPalette(PAL2, background.palette->data);
+	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+	ind += background.tileset->numTile;
 	
 	//////////////////////////////////////////////////////////////
 	// init segments
@@ -207,7 +219,7 @@ int main(u16 hard)
 	segment_position = zmap[ZMAP_LENGTH - 1 ]; // put it at the farthest away point
 
 	// set spped through z
-	speed = FIX16(-0.4);
+	speed = FIX16(-0.2);
 
 	//////////////////////////////////////////////////////////////
 	// Setup interrupt handlers
@@ -229,7 +241,9 @@ int main(u16 hard)
 
 		// curve the road with horizontal scrolling
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
-		
+		// move the background
+		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 120, DMA_QUEUE);
+
 		SYS_doVBlankProcess();
 	}
 }

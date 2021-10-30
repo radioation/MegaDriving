@@ -31,7 +31,7 @@ const ROAD_SEGMENT segments[ROAD_SEGMENTS_LENGTH] = {
 		{FIX16(0.06), FIX16(0.36)},
 		{FIX16(-0.06), FIX16(-0.36)},
 		{FIX16(0), FIX16(0)},
-		{FIX16(0.01), FIX16(0.06)},
+		{FIX16(0.02), FIX16(0.12)},
 		{FIX16(0), FIX16(0)},
 		{FIX16(-0.03), FIX16(-0.18)},
 		{FIX16(0.03), FIX16(0.18)}};
@@ -42,10 +42,13 @@ u16 segments_index = 0;
 // speed the 'vehicle' moves through the road
 fix16 speed = FIX16(0.00);
 
+// Horizontal scrolling values
 s16 HscrollA[HORIZONTAL_REZ];
+s16 HscrollB[HORIZONTAL_REZ];
 
 // position variables.
 fix16 segment_position = FIX16(0); // keep track fo the segment position onscreen
+fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
 
 // My interpretation of the pseudo-code in
 // http://www.extentofthejam.com/pseudo/#curves
@@ -83,6 +86,13 @@ void update()
 		// this_line.x = current_x
 		// we'll use horizontal scrolling of BG_A to fake curves.
 		HscrollA[223 - y] = SCROLL_CENTER + fix16ToInt(current_x);
+	}
+
+	// scroll the background
+	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
+	for (u16 y = 0; y < 120; ++y)
+	{
+		HscrollB[y] = fix16ToInt(background_position);
 	}
 
 	// Move segments
@@ -125,6 +135,7 @@ int main(u16 hard)
 	for (int i = 0; i < HORIZONTAL_REZ; i++)
 	{
 		HscrollA[i] = SCROLL_CENTER;
+		HscrollB[i] = SCROLL_CENTER;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -132,6 +143,10 @@ int main(u16 hard)
 	VDP_setPalette(PAL1, road.palette->data);
 	int ind = TILE_USERINDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+	ind += road.tileset->numTile;
+	VDP_setPalette(PAL2, background.palette->data);
+	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+	ind += background.tileset->numTile;
 
 	//////////////////////////////////////////////////////////////
 	// init segments
@@ -141,7 +156,7 @@ int main(u16 hard)
 
 	// set speed through z
 	speed = FIX16(-0.1);
-	
+
 	// Main loop
 	while (TRUE)
 	{
@@ -150,6 +165,8 @@ int main(u16 hard)
 
 		// curve the road with horizontal scrolling.
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
+		// move the background
+		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 120, DMA_QUEUE);
 
 		SYS_doVBlankProcess();
 	}
