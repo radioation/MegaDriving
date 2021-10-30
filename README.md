@@ -4,5 +4,5 @@ I've been teaching myself SGDK for fun.  This repository contains experimental c
 written based on [Lou's Pseudo 3d Page](http://www.extentofthejam.com/pseudo/).  It's 
 provided here as an example of one "possible" way to implement pseudo 3d in SGDK. 
 
-I had originally used some assembly, but decided to try rewriting it all in C.    
+I had originally used some assembly, but decided to try rewriting it all in C (but it'll probably have to have some assembly eventually).    
 
