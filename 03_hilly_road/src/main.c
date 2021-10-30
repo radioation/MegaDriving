@@ -155,7 +155,7 @@ void update()
 
 	// scroll the background
 	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
-	for (u16 y = 0; y < 120; ++y)
+	for (u16 y = 0; y < 160; ++y)
 	{
 		HscrollB[y] = fix16ToInt(background_position);
 	}
@@ -242,7 +242,7 @@ int main(u16 hard)
 		// curve the road with horizontal scrolling
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
 		// move the background
-		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 120, DMA_QUEUE);
+		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
 
 		SYS_doVBlankProcess();
 	}
