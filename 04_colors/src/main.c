@@ -20,7 +20,7 @@ s16 HscrollB[HORIZONTAL_REZ];
 s8 VscrollA[HORIZONTAL_REZ];
 
 // color banding array
-//u8 colors[HORIZONTAL_REZ];
+u8 colors[HORIZONTAL_REZ];
 
 // Zmap for tracking segment position
 #define ZMAP_LENGTH 110
@@ -163,14 +163,14 @@ void update()
 		// current_x += ddx
 		current_x = fix16Add(current_x, ddx);
 
-/*
+
 		//////////////////////////////////////////////////////////////////////
 		// Coloring
 		//  For each Z, make one of the bits represent the shade
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
 		u8 zmapval = (u8)fix16ToInt(fix16Sub(segment_position, z));
-*/
+
 		ddy = fix32Add(dy, ddy);
 		s16 cdp = fix32ToInt(current_drawing_pos);				 // current vertical drawing position
 		fix32 delta_drawing_pos = fix32Add(FIX32(1), ddy); // increment drawing position
@@ -186,7 +186,7 @@ void update()
 				horizon_line = cdp;																		 // update horizon line
 
 				// coloring
-				//colors[cdp] = zmapval & 1;
+				colors[cdp] = zmapval & 1;
 			}
 		}
 
@@ -277,19 +277,20 @@ int main(u16 hard)
 		VDP_setHIntCounter(0);
 		VDP_setHInterrupt(1);
 
-		SYS_setHIntCallback(HIntHandler);
-		SYS_setVIntCallback(VIntHandler);
+		//SYS_setHIntCallback(HIntHandler);
+		//SYS_setVIntCallback(VIntHandler);
 	}
 	SYS_enableInts();
 
 	// Main loop
-	fix16 colorCycle = FIX16(0.0);
+	//fix16 colorCycle = FIX16(0.0);
 	u16 lastSet = -1;
 	while (TRUE)
 	{
 		// update
 		update();
 
+		/* sort of works 
 		// cycle colors
 		colorCycle = fix16Add( colorCycle, FIX16(0.5));
 		u16 temp = fix16ToInt(colorCycle);
@@ -330,7 +331,8 @@ int main(u16 hard)
 			{
 				colorCycle = FIX16(0);
 			}
-		}
+		} 
+		*/
 
 		// curve the road with horizontal scrolling
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
