@@ -15,7 +15,6 @@
 		.set LINE_DARK_COLOR, 0x666
 		.set LINE_LIGHT_COLOR, 0xFFF
 
-
     
 *------------------------------------------------
 *  Functions
@@ -33,7 +32,7 @@ HInter:
 
 	lea VscrollA, %a0         /* get 'vscrollA' array effective address to A0 */
 	move.l	#VSCROLL_A, 0xC00004	| Vertical scrolling
-	move.w	(%a0, %d0.w), 0xC00000
+	move.b	(%a0, %d0.w), 0xC00000
 
 	lea colors, %a0         /* get 'colors' array effective address to A0 */
  	move.b  (%a0,%d0.w),%d0	/* check shading for current scanline */

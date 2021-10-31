@@ -49,8 +49,8 @@ const ROAD_SEGMENT segments[ROAD_SEGMENTS_LENGTH] = {
 		{FIX16(0), FIX16(0), FIX32(0.002)},
 		{FIX16(0.0), FIX16(0.0), FIX32(0)},
 		{FIX16(0), FIX16(0), FIX32(0.0)},
-		{FIX16(-0.015), FIX16(-0.32), FIX32(0)},
-		{FIX16(0.015), FIX16(0.32), FIX32(0)}};
+		{FIX16(-0.02), FIX16(-0.48), FIX32(0)},
+		{FIX16(0.02), FIX16(0.48), FIX32(0)}};
 
 u16 bottom_segments_index = 0;
 u16 segments_index = 0;
