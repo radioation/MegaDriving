@@ -27,11 +27,17 @@ HInter:
 	clr.l	%d0               /* Clear D0 and read the current scanline to it */
 	move.b	(0xC00008), %d0		
 
+	cmp.w	#100, %d0
+	jgt		WORK            /*  do if current line is below horizon */
 
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
+
+WORK:
 	move.l	%a0, -(%sp)     /* push address register 0 onto the stack  */
 
 	lea VscrollA, %a0         /* get 'vscrollA' array effective address to A0 */
-	move.l	#VSCROLL_A, 0xC00004	| Vertical scrolling
+	move.l	#VSCROLL_A, 0xC00004	/* Vertical scrolling */
 	move.b	(%a0, %d0.w), 0xC00000
 
 	lea colors, %a0         /* get 'colors' array effective address to A0 */
@@ -40,6 +46,15 @@ HInter:
 	tst.b	%d0               /* check shading value */
 	jeq		LIGHT             /* jump to light coloring */
 
+	move.b #2, %d0
+	cmp.w line_color, %d0
+	jne SET_DARK   /* if not dark, set the color */
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
+
+SET_DARK:
+
+	move.b %d0, line_color
 	move.l #PAL0_COLOR1, VDP_CTRL /* Tell VDP we want to change color 1 */
 	clr.w %d0
 
@@ -54,6 +69,14 @@ DELAY1:
   rte
 
 LIGHT:
+	move.b #1, %d0
+	cmp.w line_color, %d0
+	jne SET_LIGHT   /* if not dark, set the color */
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
+
+SET_LIGHT:
+	move.b %d0, line_color
 	move.l #PAL0_COLOR1, VDP_CTRL /* Tell VDP we want to change color 1 */
 	clr.w %d0
 

@@ -21,6 +21,8 @@ s8 VscrollA[HORIZONTAL_REZ];
 
 // color banding array
 u8 colors[HORIZONTAL_REZ];
+u8 line_color = 0; // 0 -uninit, 1-light, 2-dark
+u8 grass_color = 0; // 0 -uninit, 1-light, 2-dark
 
 // Zmap for tracking segment position
 #define ZMAP_LENGTH 110
@@ -127,7 +129,7 @@ void update()
 	fix32 ddy = FIX32(0); // Slope Amount, changes per line
 
 	fix32 current_drawing_pos = FIX32(223); // The drawing loop would start at the beginning of the Z-map (nearest).  Basically the bottom of the screen
-	s16 horizon_line = 223;									// keep track of where the horizon is.  I"m starting at the bottom and will update as the rode gets computed
+	horizon_line = 223;									// keep track of where the horizon is.  I"m starting at the bottom and will update as the rode gets computed
 
 	// for each line of the screen from the bottom to the top
 	//for (y = 0; y < ZMAP_LENGTH; ++y)  // no longer works because up-hill/down-hill won't be exaclty 1.  ++y isn't valid
