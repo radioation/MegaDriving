@@ -22,6 +22,7 @@ s8 VscrollA[HORIZONTAL_REZ];
 // color banding array
 u8 colors[HORIZONTAL_REZ];
 u8 line_color = 0; // 0 -uninit, 1-light, 2-dark
+u8 side_color = 0;
 u8 grass_color = 0; // 0 -uninit, 1-light, 2-dark
 
 // Zmap for tracking segment position

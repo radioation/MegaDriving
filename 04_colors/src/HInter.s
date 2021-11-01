@@ -6,7 +6,12 @@
 		.set VDP_CTRL, 0xC00004
 		.set VDP_DATA, 0xC00000
 		
-		.set PAL0_COLOR1, 0xC0020000
+		.set PAL0_COLOR0, 0xC0000000
+    .set PAL0_COLOR1, 0xC0020000
+    .set PAL0_COLOR2, 0xC0040000
+    .set PAL0_COLOR3, 0xC0060000
+    .set PAL0_COLOR4, 0xC0080000
+
 		.set VSCROLL_A,	0x40000010
 		.set VSCROLL_B,	0x40020010
 		.set HSCROLL_A,	0x7C000002
@@ -15,6 +20,8 @@
 		.set LINE_DARK_COLOR, 0x666
 		.set LINE_LIGHT_COLOR, 0xFFF
 
+		.set GRASS_DARK_COLOR, 0x060
+		.set GRASS_LIGHT_COLOR, 0x0C0
     
 *------------------------------------------------
 *  Functions
@@ -46,48 +53,100 @@ WORK:
 	tst.b	%d0               /* check shading value */
 	jeq		LIGHT             /* jump to light coloring */
 
+DARK:
+LINE_DARK:
 	move.b #2, %d0
-	cmp.w line_color, %d0
-	jne SET_DARK   /* if not dark, set the color */
-	move.l	(%sp)+, %d0   /* restore data register 0 */
-	rte
+	cmp.b line_color, %d0
+	jne SET_LINE_DARK   /* if not dark, set the color */
+	jmp GRASS_DARK
+	|move.l	(%sp)+, %d0   /* restore data register 0 */
+	|rte
 
-SET_DARK:
+SET_LINE_DARK:
 
 	move.b %d0, line_color
 	move.l #PAL0_COLOR1, VDP_CTRL /* Tell VDP we want to change color 1 */
 	clr.w %d0
 
-DELAY1: 
+LINE_DELAY1: 
 	move.w	(VDP_CTRL), %d0		/* wait before we set color (to minimize dots) */
 	btst.b  #0x02, %d0	
-	beq DELAY1 
+	beq LINE_DELAY1 
 
 	move.w #LINE_DARK_COLOR, VDP_DATA  /* set the color */
 
 	move.l	(%sp)+, %d0   /* restore data register 0 */
   rte
 
-LIGHT:
-	move.b #1, %d0
-	cmp.w line_color, %d0
-	jne SET_LIGHT   /* if not dark, set the color */
+GRASS_DARK:
+	move.b #2, %d0
+	cmp.b grass_color, %d0
+	jne SET_GRASS_DARK   /* if not dark, set the color */
 	move.l	(%sp)+, %d0   /* restore data register 0 */
 	rte
 
-SET_LIGHT:
+SET_GRASS_DARK:
+
+	move.b %d0, grass_color
+	move.l #PAL0_COLOR3, VDP_CTRL /* Tell VDP we want to change color 1 */
+	clr.w %d0
+
+GRASS_DELAY1: 
+	move.w	(VDP_CTRL), %d0		/* wait before we set color (to minimize dots) */
+	btst.b  #0x02, %d0	
+	beq GRASS_DELAY1 
+
+	move.w #GRASS_DARK_COLOR, VDP_DATA  /* set the color */
+
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+  rte
+
+
+LIGHT:
+
+LINE_LIGHT:	
+	move.b #1, %d0
+	cmp.b line_color, %d0
+	jne SET_LINE_LIGHT   /* if not dark, set the color */
+	JMP GRASS_LIGHT
+	|move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
+
+SET_LINE_LIGHT:
 	move.b %d0, line_color
 	move.l #PAL0_COLOR1, VDP_CTRL /* Tell VDP we want to change color 1 */
 	clr.w %d0
 
-DELAY2: 
+LINE_DELAY2: 
 	move.w	(VDP_CTRL), %d0		/* wait before setting color */
 	btst.b  #0x02, %d0	
-	beq DELAY2 
+	beq LINE_DELAY2 
 
 	move.w #LINE_LIGHT_COLOR, VDP_DATA  /* set the color */
 
 	move.l	(%sp)+, %d0   /* restore data register 0 */
   rte
 
+GRASS_LIGHT:
+	move.b #1, %d0
+	cmp.b grass_color, %d0
+	jne SET_GRASS_LIGHT   /* if not dark, set the color */
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
+
+SET_GRASS_LIGHT:
+
+	move.b %d0, grass_color
+	move.l #PAL0_COLOR3, VDP_CTRL /* Tell VDP we want to change color 1 */
+	clr.w %d0
+
+GRASS_DELAY2: 
+	move.w	(VDP_CTRL), %d0		/* wait before we set color (to minimize dots) */
+	btst.b  #0x02, %d0	
+	beq GRASS_DELAY2 
+
+	move.w #GRASS_LIGHT_COLOR, VDP_DATA  /* set the color */
+
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+  rte
 
