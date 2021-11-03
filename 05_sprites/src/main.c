@@ -18,6 +18,9 @@ s16 HscrollA[HORIZONTAL_REZ];
 s16 HscrollB[HORIZONTAL_REZ];
 // Vertical Scrolling values ( to simulate hills )
 s8 VscrollA[HORIZONTAL_REZ];
+fix32 roadOffsetRight[224]; // X offset from side of road ( for positioning the sprites 
+fix32 roadOffsetLeft[224]; // X offset from side of road ( for positioning the sprites 
+
 
 // color banding array
 u8 colors[HORIZONTAL_REZ];
@@ -25,61 +28,134 @@ u8 line_color = 0; // 0 -uninit, 1-light, 2-dark
 u8 side_color = 0;
 u8 grass_color = 0; // 0 -uninit, 1-light, 2-dark
 
-s16 roadDX[HORIZONTAL_REZ];
 
 // Zmap for tracking segment position
-#define ZMAP_LENGTH 110
-fix16 zmap[ZMAP_LENGTH];
+#define ZMAP_LENGTH 110 // slighty more than the bg horizon 
+fix32 zmap[ZMAP_LENGTH];
+fix32 scale[ZMAP_LENGTH];
 
 // Road data
 #define ROAD_SEGMENTS_LENGTH 15
 typedef struct
 {
-	fix16 dx;		// rate of change for the road.
-	fix16 bgdx; // rate of change for background. ( ignore for now )
+	fix32 dx;		// rate of change for the road.
+	fix32 bgdx; // rate of change for background. ( ignore for now )
 	fix32 dy;		//  rate of change for drawing road in y dir?
 } ROAD_SEGMENT;
 
 const ROAD_SEGMENT segments[ROAD_SEGMENTS_LENGTH] = {
-		{FIX16(0), FIX16(0), FIX32(-0.001)},
-		{FIX16(-0.02), FIX16(-0.48), FIX32(0.002)},
-		{FIX16(-0.04), FIX16(-1.28), FIX32(-0.001)},
-		{FIX16(-0.02), FIX16(-0.48), FIX32(0.0)},
-		{FIX16(0), FIX16(0), FIX32(0.001)},
-		{FIX16(0), FIX16(0), FIX32(0.0025)},
-		{FIX16(0.03), FIX16(0.64), FIX32(-0.002)},
-		{FIX16(-0.03), FIX16(-0.64), FIX32(0)},
-		{FIX16(0), FIX16(0), FIX32(0.001)},
-		{FIX16(0), FIX16(0), FIX32(-0.0025)},
-		{FIX16(0), FIX16(0), FIX32(0.002)},
-		{FIX16(0.0), FIX16(0.0), FIX32(0)},
-		{FIX16(0), FIX16(0), FIX32(0.0)},
-		{FIX16(-0.02), FIX16(-0.48), FIX32(0)},
-		{FIX16(0.02), FIX16(0.48), FIX32(0)}};
+		{FIX32(0), FIX32(0), FIX32(-0.000)},
+		{FIX32(-0.02), FIX32(-0.48), FIX32(0.002)},
+		{FIX32(-0.04), FIX32(-1.28), FIX32(-0.001)},
+		{FIX32(-0.02), FIX32(-0.48), FIX32(0.0)},
+		{FIX32(0), FIX32(0), FIX32(0.001)},
+		{FIX32(0), FIX32(0), FIX32(0.0025)},
+		{FIX32(0.03), FIX32(0.64), FIX32(-0.002)},
+		{FIX32(-0.03), FIX32(-0.64), FIX32(0)},
+		{FIX32(0), FIX32(0), FIX32(0.001)},
+		{FIX32(0), FIX32(0), FIX32(-0.0025)},
+		{FIX32(0), FIX32(0), FIX32(0.002)},
+		{FIX32(0.0), FIX32(0.0), FIX32(0)},
+		{FIX32(0), FIX32(0), FIX32(0.0)},
+		{FIX32(-0.02), FIX32(-0.48), FIX32(0)},
+		{FIX32(0.02), FIX32(0.48), FIX32(0)}};
 
 u16 bottom_segments_index = 0;
 u16 segments_index = 0;
 
 // Speed the 'vehicle' moves through teh road
-fix16 speed = FIX16(0.00);
+fix32 speed = FIX32(0.00);
 
 // position variables.
-fix16 segment_position = FIX16(0); // keep track of the segment position on screen
-fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
+fix32 segment_position = FIX32(0); // keep track of the segment position on screen
+fix32 background_position = FIX32(SCROLL_CENTER); // handle background X position
 s16 horizon_line = 223;							// keep track of where the horizon is
 
 
 // Sprites
 struct CP_SPRITE {
 	Sprite *sprite;
-	fix16 pos_x;
-	fix16 pos_y;
+	fix32 pos_x;
+	fix32 pos_y;
+	fix32 zpos; // track position along the road. start it at the farthest on background - 12.5
+	u8 update_y;
 };
 struct CP_SPRITE carSprite;
 #define NUMBER_OF_TREES 6
 struct CP_SPRITE trees[NUMBER_OF_TREES];
 
+void createTrees() {
+	for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
+	{
+		//trees[i] = malloc( sizeof(struct CP_SPRITE));
+		if( i < 2 ) {
+			trees[i].zpos = FIX32(12.5);
+			// sprite width is 56 - so 28
+			/*
+			if ( i%2 ) {
+				trees[i].pos_x = FIX32(160 - 28 - 15);
+			} else {
+				trees[i].pos_x = FIX32(160 - 28 + 15);
+			}
+			trees[i].pos_y = FIX32(42);
+			*/
+		} else if( i < 4 ) {
+			trees[i].zpos = FIX32(8);
+			/*
+			if ( i%2 ) {
+				trees[i].pos_x = FIX32(160 - 28 - 45);
+			} else {
+				trees[i].pos_x = FIX32(160 - 28 + 45);
+			}
+			trees[i].pos_y = FIX32(74);
+			*/
+		} else {
+			trees[i].zpos = FIX32(4);
+			/*
+			if ( i%2 ) {
+				trees[i].pos_x = FIX32(160 - 28 - 45);
+			} else {
+				trees[i].pos_x = FIX32(160 - 28 + 45);
+			}
 
+			trees[i].pos_y = FIX32(74);
+			*/
+		}
+		trees[i].update_y = 1;
+		trees[i].sprite = SPR_addSprite(&tree,
+																		 fix32ToInt(trees[i].pos_x),
+																		 fix32ToInt(trees[i].pos_y),
+																		 TILE_ATTR(PAL3, 0, FALSE, FALSE));
+		SPR_setFrame( trees[i].sprite, 4 );
+		SPR_setDepth( trees[i].sprite, 3 );
+	}
+
+}
+
+void updateTrees() {
+	for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
+	{
+		// figure out z position
+		trees[i].zpos = fix32Add( trees[i].zpos, speed );
+		if( trees[i].zpos < FIX32(-0.0)) {
+			trees[i].zpos = FIX32(12.5);
+		}
+		// figure out scale 
+		if( trees[i].zpos < FIX32( 1.01)  ) {
+			SPR_setFrame( trees[i].sprite, 0 );
+		}else if( trees[i].zpos < FIX32( 1.32 ) ) {
+			SPR_setFrame( trees[i].sprite, 1 );
+		}else if( trees[i].zpos < FIX32(2.01) ) {
+			SPR_setFrame( trees[i].sprite, 2 );
+		}else if( trees[i].zpos < FIX32(4.15) ) {
+			SPR_setFrame( trees[i].sprite, 3 );
+		}else {
+			SPR_setFrame( trees[i].sprite, 4 );
+		}
+		// actual Y will have to come from background update
+		trees[i].update_y = 1;
+	}
+}
 
 
 // My interpretation of the pseudo-code in
@@ -88,11 +164,11 @@ struct CP_SPRITE trees[NUMBER_OF_TREES];
 // http://www.extentofthejam.com/pseudo/#hills
 void update()
 {
-	fix16 current_x = FIX16(0); // Lou's pseudo 3d page says to use Half of the screen width,
+	fix32 current_x = FIX32(0); // Lou's pseudo 3d page says to use Half of the screen width,
 															// but I've defined SCROLL_CENTER to handle this
 
-	fix16 dx = FIX16(0);	// Curve Amount, constant per segment.
-	fix16 ddx = FIX16(0); // Curve Amount, changes per line
+	fix32 dx = FIX32(0);	// Curve Amount, constant per segment.
+	fix32 ddx = FIX32(0); // Curve Amount, changes per line
 
 	fix32 dy = FIX32(0);	// Slope Amount
 	fix32 ddy = FIX32(0); // Slope Amount, changes per line
@@ -114,7 +190,7 @@ void update()
 
 		//////////////////////////////////////////////////////////////////////
 		// Road Bending
-		fix16 z = zmap[223 - bgY]; // zmap[0] is closest
+		fix32 z = zmap[223 - bgY]; // zmap[0] is closest
 		// if line of screen's Z map position is below segment position
 		if (z < segment_position)
 		{
@@ -130,9 +206,9 @@ void update()
 		}
 
 		// ddx += dx
-		ddx = fix16Add(ddx, dx);
+		ddx = fix32Add(ddx, dx);
 		// current_x += ddx
-		current_x = fix16Add(current_x, ddx);
+		current_x = fix32Add(current_x, ddx);
 
 
 		//////////////////////////////////////////////////////////////////////
@@ -140,7 +216,7 @@ void update()
 		//  For each Z, make one of the bits represent the shade
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
-		u8 zmapval = (u8)fix16ToInt(fix16Sub(segment_position, z));
+		u8 zmapval = (u8)fix32ToInt(fix32Sub(segment_position, z));
 
 		ddy = fix32Add(dy, ddy);
 		s16 cdp = fix32ToInt(current_drawing_pos);				 // current vertical drawing position
@@ -152,14 +228,32 @@ void update()
 		{
 			if (cdp <= horizon_line) // if current drawing position is above the horizon
 			{
-				HscrollA[cdp] = SCROLL_CENTER + fix16ToInt(current_x); // this_line.x = current x | using horizontal scrolling to fake curves
+				HscrollA[cdp] = SCROLL_CENTER + fix32ToInt(current_x); // this_line.x = current x | using horizontal scrolling to fake curves
 				VscrollA[cdp] = bgY - cdp;														 // set the vertical scroll amount for the current drawing position
 				horizon_line = cdp;																		 // update horizon line
 
 				// coloring
 				colors[cdp] = zmapval & 1;
 
-				roadDX[ cdp ] = fix16ToInt( fix16Mul( dx, FIX16(100)));
+			}
+		}
+
+		// sprite update
+		for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
+		{
+			if (trees[i].update_y == 1)
+			{
+				// check if z is close.
+				if (z > trees[i].zpos)
+				{
+					trees[i].pos_y = fix32Sub(current_drawing_pos, FIX32(75));
+					if( i%2 == 0 ) {
+						trees[i].pos_x = fix32Add( fix32Add( FIX32(160), current_x ), roadOffsetLeft[bgY] );
+					} else {
+						trees[i].pos_x = fix32Add( fix32Add( FIX32(160), current_x ), roadOffsetRight[bgY] );
+					}
+					trees[i].update_y = 0;
+				}
 			}
 		}
 
@@ -172,18 +266,16 @@ void update()
 		VscrollA[h] = -h;
 	}
 
-
 	// scroll the background
-	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
+	background_position = fix32Sub(background_position, segments[bottom_segments_index].bgdx);
 	for (u16 y = 0; y < 160; ++y)
 	{
-		HscrollB[y] = fix16ToInt(background_position);
+		HscrollB[y] = fix32ToInt(background_position);
 	}
 
-
 	// Move segments
-	segment_position = fix16Add(segment_position, speed);
-	if (fix16ToInt(segment_position) < 0)
+	segment_position = fix32Add(segment_position, speed);
+	if (fix32ToInt(segment_position) < 0)
 	{
 		// bottom_segment = segment
 		bottom_segments_index = segments_index;
@@ -204,11 +296,39 @@ int main(u16 hard)
 	//////////////////////////////////////////////////////////////
 	// http://www.extentofthejam.com/pseudo/
 	// Z = Y_world / (Y_screen - (height_screen / 2))
-	for (u16 i = 0; i < ZMAP_LENGTH; ++i)
+	// this gets me 0.65 nearest and 25.0 farthest
+	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = fix16Div(FIX16(-75), fix16Sub(FIX16(i), FIX16(112)));
-		KLog_f1("FIX16(", zmap[i]);
+		zmap[i] = fix32Div(FIX32(-75), fix32Sub(FIX32(i), FIX32(112)));
+		scale[i] = fix32Div(FIX32(1), zmap[i]);
+		KLog_F3("i: ", FIX32(i), " z: ", zmap[i], " s: ", scale[i]);
 	}
+
+
+	//////////////////////////////////////////////////////////////
+	// Precompute road offsets for roadside sprites
+	// 116 | 262-256 = 6
+	// 223 | 415-256 = 159
+	// 159 - 6 =  153 
+	// 223 - 116 =  107
+	// step size 153/107  1.43  << step size per line 
+	// 
+	// Looks better w/ more padding
+	// (159 + 42) - (6+3) =  192 
+	// step size 192/107  1.794 << step size per line 
+	fix32 rightFromCenter = FIX32( -22 ); // tree width is 56 ..   half of 56 is 28 
+	fix32 leftFromCenter = FIX32( -34 ); // tree width is 56 ..   half of 56 is 28 
+	fix32 step = FIX32( 1.794 );
+	for (int i = 224 - ZMAP_LENGTH; i < 224; i++)
+	{
+		roadOffsetRight[i] = rightFromCenter;
+		rightFromCenter = fix32Add(rightFromCenter, step);
+		roadOffsetLeft[i] = leftFromCenter;
+		leftFromCenter = fix32Sub(leftFromCenter, step);
+		KLog_F2(" i: ", FIX32(i), "  road offset: ", roadOffsetRight[i]);
+	}
+
+
 
 	//////////////////////////////////////////////////////////////
 	// VDP basic setup
@@ -220,7 +340,6 @@ int main(u16 hard)
 		HscrollA[i] = SCROLL_CENTER;
 		HscrollB[i] = SCROLL_CENTER;
 		VscrollA[i] = 0;
-		roadDX[i] = 0;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -229,30 +348,32 @@ int main(u16 hard)
 	int ind = TILE_USERINDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
-	VDP_setPalette(PAL2, background.palette->data);
-	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+	VDP_setPalette(PAL1, background.palette->data);
+	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += background.tileset->numTile;
-	
-	VDP_setVerticalScroll(BG_B, 0);
 
+	VDP_setVerticalScroll(BG_B, 0);
 
 	//////////////////////////////////////////////////////////////
 	// Setup Sprites
 	SPR_init();
-	VDP_setPalette(PAL3, car.palette->data);
+	VDP_setPalette(PAL2, car.palette->data);
 	carSprite.sprite = NULL;
-	carSprite.pos_x  = FIX16(116.0);
-	carSprite.pos_y  = FIX16(160.0);
-	carSprite.sprite = SPR_addSprite(&car,								 // Sprite defined in resources
-														fix16ToInt(carSprite.pos_x), // starting X position
-														fix16ToInt(carSprite.pos_y), // starting Y position
-														TILE_ATTR(PAL3,			 // specify palette
-																			1,				 // Tile priority ( with background)
-																			FALSE,		 // flip the sprite vertically?
-																			FALSE			 // flip the sprite horizontally
-																			));
-
+	carSprite.pos_x = FIX32(116.0);
+	carSprite.pos_y = FIX32(160.0);
+	carSprite.sprite = SPR_addSprite(&car,												// Sprite defined in resources
+																	 fix32ToInt(carSprite.pos_x), // starting X position
+																	 fix32ToInt(carSprite.pos_y), // starting Y position
+																	 TILE_ATTR(PAL2,							// specify palette
+																						 1,									// Tile priority ( with background)
+																						 FALSE,							// flip the sprite vertically?
+																						 FALSE							// flip the sprite horizontally
+																						 ));
 	SPR_setFrame(carSprite.sprite, 2);
+
+	VDP_setPalette(PAL3, tree.palette->data);
+	createTrees();
+
 	//////////////////////////////////////////////////////////////
 	// init segments
 	bottom_segments_index = 0;
@@ -260,7 +381,8 @@ int main(u16 hard)
 	segment_position = zmap[ZMAP_LENGTH - 1]; // put it at the farthest away point
 
 	// set spped through z
-	speed = FIX16(-0.20);
+	speed = FIX32(-0.40);
+	//speed = FIX32(-0.1);
 
 	//////////////////////////////////////////////////////////////
 	// Setup interrupt handlers
@@ -276,22 +398,37 @@ int main(u16 hard)
 	while (TRUE)
 	{
 		// update
+		updateTrees();
 		update();
 
-		SPR_setPosition(carSprite.sprite, fix16ToInt(carSprite.pos_x), fix16ToInt(carSprite.pos_y));
-		if (roadDX[220] < -2)
+
+
+		for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
+		{
+			// update z-order  for trees
+    	SPR_setDepth(trees[i].sprite, 224 - fix32ToInt(trees[i].pos_y) );
+			// Draw tree at new position
+			SPR_setPosition(trees[i].sprite, fix32ToInt(trees[i].pos_x), fix32ToInt(trees[i].pos_y));
+
+		}
+
+		// Draw car at now position
+		SPR_setPosition(carSprite.sprite, fix32ToInt(carSprite.pos_x), fix32ToInt(carSprite.pos_y));
+
+		fix32 dx = segments[bottom_segments_index].dx;
+		if (dx < FIX32(-0.02) )
 		{
 			SPR_setFrame(carSprite.sprite, 0);
 		}
-		else if (roadDX[220] < 0)
+		else if (dx < FIX32(0.0) )
 		{
 			SPR_setFrame(carSprite.sprite, 1);
 		}
-		else if (roadDX[220] >= 2)
+		else if (dx >= FIX32(0.02) )
 		{
 			SPR_setFrame(carSprite.sprite, 4);
 		}
-		else if (roadDX[220] >= 1)
+		else if (dx > FIX32(0.0) )
 		{
 			SPR_setFrame(carSprite.sprite, 3);
 		}
@@ -306,6 +443,11 @@ int main(u16 hard)
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
 		// move the background
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
+
+		fix32 h= FIX32( horizon_line - 113 );
+		h = fix32Div( h, FIX32(6));
+		VDP_setVerticalScroll( BG_B, fix32ToInt( h ));
+
 		SYS_doVBlankProcess();
 	}
 }
