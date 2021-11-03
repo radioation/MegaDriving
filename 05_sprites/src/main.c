@@ -18,9 +18,8 @@ s16 HscrollA[HORIZONTAL_REZ];
 s16 HscrollB[HORIZONTAL_REZ];
 // Vertical Scrolling values ( to simulate hills )
 s8 VscrollA[HORIZONTAL_REZ];
-fix32 roadOffsetRight[224]; // X offset from side of road ( for positioning the sprites 
-fix32 roadOffsetLeft[224]; // X offset from side of road ( for positioning the sprites 
-
+fix32 roadOffsetRight[224]; // X offset from side of road ( for positioning the sprites
+fix32 roadOffsetLeft[224];	// X offset from side of road ( for positioning the sprites
 
 // color banding array
 u8 colors[HORIZONTAL_REZ];
@@ -28,9 +27,8 @@ u8 line_color = 0; // 0 -uninit, 1-light, 2-dark
 u8 side_color = 0;
 u8 grass_color = 0; // 0 -uninit, 1-light, 2-dark
 
-
 // Zmap for tracking segment position
-#define ZMAP_LENGTH 110 // slighty more than the bg horizon 
+#define ZMAP_LENGTH 110 // slighty more than the bg horizon
 fix32 zmap[ZMAP_LENGTH];
 fix32 scale[ZMAP_LENGTH];
 
@@ -65,15 +63,17 @@ u16 segments_index = 0;
 
 // Speed the 'vehicle' moves through teh road
 fix32 speed = FIX32(0.00);
+s16 accelerate = 0;
+s16 deccelerate = 0;
 
 // position variables.
-fix32 segment_position = FIX32(0); // keep track of the segment position on screen
+fix32 segment_position = FIX32(0);								// keep track of the segment position on screen
 fix32 background_position = FIX32(SCROLL_CENTER); // handle background X position
-s16 horizon_line = 223;							// keep track of where the horizon is
-
+s16 horizon_line = 223;														// keep track of where the horizon is
 
 // Sprites
-struct CP_SPRITE {
+struct CP_SPRITE
+{
 	Sprite *sprite;
 	fix32 pos_x;
 	fix32 pos_y;
@@ -84,79 +84,129 @@ struct CP_SPRITE carSprite;
 #define NUMBER_OF_TREES 6
 struct CP_SPRITE trees[NUMBER_OF_TREES];
 
-void createTrees() {
+void createTrees()
+{
 	for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
 	{
 		//trees[i] = malloc( sizeof(struct CP_SPRITE));
-		if( i < 2 ) {
+		if (i < 2)
+		{
 			trees[i].zpos = FIX32(12.5);
-			// sprite width is 56 - so 28
-			/*
-			if ( i%2 ) {
-				trees[i].pos_x = FIX32(160 - 28 - 15);
-			} else {
-				trees[i].pos_x = FIX32(160 - 28 + 15);
-			}
-			trees[i].pos_y = FIX32(42);
-			*/
-		} else if( i < 4 ) {
+		}
+		else if (i < 4)
+		{
 			trees[i].zpos = FIX32(8);
-			/*
-			if ( i%2 ) {
-				trees[i].pos_x = FIX32(160 - 28 - 45);
-			} else {
-				trees[i].pos_x = FIX32(160 - 28 + 45);
-			}
-			trees[i].pos_y = FIX32(74);
-			*/
-		} else {
+		}
+		else
+		{
 			trees[i].zpos = FIX32(4);
-			/*
-			if ( i%2 ) {
-				trees[i].pos_x = FIX32(160 - 28 - 45);
-			} else {
-				trees[i].pos_x = FIX32(160 - 28 + 45);
-			}
-
-			trees[i].pos_y = FIX32(74);
-			*/
 		}
 		trees[i].update_y = 1;
 		trees[i].sprite = SPR_addSprite(&tree,
-																		 fix32ToInt(trees[i].pos_x),
-																		 fix32ToInt(trees[i].pos_y),
-																		 TILE_ATTR(PAL3, 0, FALSE, FALSE));
-		SPR_setFrame( trees[i].sprite, 4 );
-		SPR_setDepth( trees[i].sprite, 3 );
+																		fix32ToInt(trees[i].pos_x),
+																		fix32ToInt(trees[i].pos_y),
+																		TILE_ATTR(PAL3, 0, FALSE, FALSE));
+		SPR_setFrame(trees[i].sprite, 4);
+		SPR_setDepth(trees[i].sprite, 3);
 	}
-
 }
 
-void updateTrees() {
+void updateTrees()
+{
 	for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
 	{
 		// figure out z position
-		trees[i].zpos = fix32Add( trees[i].zpos, speed );
-		if( trees[i].zpos < FIX32(-0.0)) {
+		trees[i].zpos = fix32Add(trees[i].zpos, speed);
+		if (trees[i].zpos < FIX32(-0.0))
+		{
 			trees[i].zpos = FIX32(12.5);
 		}
-		// figure out scale 
-		if( trees[i].zpos < FIX32( 1.01)  ) {
-			SPR_setFrame( trees[i].sprite, 0 );
-		}else if( trees[i].zpos < FIX32( 1.32 ) ) {
-			SPR_setFrame( trees[i].sprite, 1 );
-		}else if( trees[i].zpos < FIX32(2.01) ) {
-			SPR_setFrame( trees[i].sprite, 2 );
-		}else if( trees[i].zpos < FIX32(4.15) ) {
-			SPR_setFrame( trees[i].sprite, 3 );
-		}else {
-			SPR_setFrame( trees[i].sprite, 4 );
+		// figure out scale
+		if (trees[i].zpos < FIX32(1.01))
+		{
+			SPR_setFrame(trees[i].sprite, 0);
+		}
+		else if (trees[i].zpos < FIX32(1.32))
+		{
+			SPR_setFrame(trees[i].sprite, 1);
+		}
+		else if (trees[i].zpos < FIX32(2.01))
+		{
+			SPR_setFrame(trees[i].sprite, 2);
+		}
+		else if (trees[i].zpos < FIX32(4.15))
+		{
+			SPR_setFrame(trees[i].sprite, 3);
+		}
+		else
+		{
+			SPR_setFrame(trees[i].sprite, 4);
 		}
 		// actual Y will have to come from background update
 		trees[i].update_y = 1;
 	}
 }
 
+// joypad event handler.  This gets called automatically by SGDK when the joypad
+// state changes
+static void joypadHandler(u16 joypadId, u16 changed, u16 state)
+{
+	if ( joypadId == JOY_1 ) {
+			if( state & BUTTON_A ) {
+				accelerate = 1; 
+			}	else if ( changed & BUTTON_A ) {
+				accelerate = 0; 
+			}
+			if( state & BUTTON_B ) {
+				deccelerate = 1; 
+			}	else if ( changed & BUTTON_B ) {
+				deccelerate = 0; 
+			}
+	}
+}
+
+void updateCar()
+{
+	if( accelerate == 1 ) {
+		speed = fix32Sub( speed, FIX32(0.005));
+	} 
+
+	if( deccelerate == 1 ) {
+		speed = fix32Add( speed, FIX32(0.005));
+	} 
+	
+	if( accelerate == 0 && deccelerate == 0 ) {
+		speed = fix32Add( speed, FIX32(0.003));
+		if( speed > FIX32(0.0)){
+			speed = FIX32(0);
+		}
+	}
+	if( speed < FIX32(-1.0)){
+		speed = FIX32(-1.0);
+	}
+
+	fix32 dx = segments[bottom_segments_index].dx;
+	if (dx < FIX32(-0.02))
+	{
+		SPR_setFrame(carSprite.sprite, 0);
+	}
+	else if (dx < FIX32(0.0))
+	{
+		SPR_setFrame(carSprite.sprite, 1);
+	}
+	else if (dx >= FIX32(0.02))
+	{
+		SPR_setFrame(carSprite.sprite, 4);
+	}
+	else if (dx > FIX32(0.0))
+	{
+		SPR_setFrame(carSprite.sprite, 3);
+	}
+	else
+	{
+		SPR_setFrame(carSprite.sprite, 2);
+	}
+}
 
 // My interpretation of the pseudo-code in
 // http://www.extentofthejam.com/pseudo/#curves
@@ -174,7 +224,7 @@ void update()
 	fix32 ddy = FIX32(0); // Slope Amount, changes per line
 
 	fix32 current_drawing_pos = FIX32(223); // The drawing loop would start at the beginning of the Z-map (nearest).  Basically the bottom of the screen
-	horizon_line = 223;									// keep track of where the horizon is.  I"m starting at the bottom and will update as the rode gets computed
+	horizon_line = 223;											// keep track of where the horizon is.  I"m starting at the bottom and will update as the rode gets computed
 
 	// for each line of the screen from the bottom to the top
 	//for (y = 0; y < ZMAP_LENGTH; ++y)  // no longer works because up-hill/down-hill won't be exaclty 1.  ++y isn't valid
@@ -210,7 +260,6 @@ void update()
 		// current_x += ddx
 		current_x = fix32Add(current_x, ddx);
 
-
 		//////////////////////////////////////////////////////////////////////
 		// Coloring
 		//  For each Z, make one of the bits represent the shade
@@ -234,7 +283,6 @@ void update()
 
 				// coloring
 				colors[cdp] = zmapval & 1;
-
 			}
 		}
 
@@ -247,10 +295,13 @@ void update()
 				if (z > trees[i].zpos)
 				{
 					trees[i].pos_y = fix32Sub(current_drawing_pos, FIX32(75));
-					if( i%2 == 0 ) {
-						trees[i].pos_x = fix32Add( fix32Add( FIX32(160), current_x ), roadOffsetLeft[bgY] );
-					} else {
-						trees[i].pos_x = fix32Add( fix32Add( FIX32(160), current_x ), roadOffsetRight[bgY] );
+					if (i % 2 == 0)
+					{
+						trees[i].pos_x = fix32Add(fix32Add(FIX32(160), current_x), roadOffsetLeft[bgY]);
+					}
+					else
+					{
+						trees[i].pos_x = fix32Add(fix32Add(FIX32(160), current_x), roadOffsetRight[bgY]);
 					}
 					trees[i].update_y = 0;
 				}
@@ -267,10 +318,14 @@ void update()
 	}
 
 	// scroll the background
-	background_position = fix32Sub(background_position, segments[bottom_segments_index].bgdx);
-	for (u16 y = 0; y < 160; ++y)
+	if (speed != FIX32(0.0))
 	{
-		HscrollB[y] = fix32ToInt(background_position);
+
+		background_position = fix32Sub(background_position, segments[bottom_segments_index].bgdx);
+		for (u16 y = 0; y < 160; ++y)
+		{
+			HscrollB[y] = fix32ToInt(background_position);
+		}
 	}
 
 	// Move segments
@@ -304,21 +359,20 @@ int main(u16 hard)
 		KLog_F3("i: ", FIX32(i), " z: ", zmap[i], " s: ", scale[i]);
 	}
 
-
 	//////////////////////////////////////////////////////////////
 	// Precompute road offsets for roadside sprites
 	// 116 | 262-256 = 6
 	// 223 | 415-256 = 159
-	// 159 - 6 =  153 
+	// 159 - 6 =  153
 	// 223 - 116 =  107
-	// step size 153/107  1.43  << step size per line 
-	// 
+	// step size 153/107  1.43  << step size per line
+	//
 	// Looks better w/ more padding
-	// (159 + 42) - (6+3) =  192 
-	// step size 192/107  1.794 << step size per line 
-	fix32 rightFromCenter = FIX32( -22 ); // tree width is 56 ..   half of 56 is 28 
-	fix32 leftFromCenter = FIX32( -34 ); // tree width is 56 ..   half of 56 is 28 
-	fix32 step = FIX32( 1.794 );
+	// (159 + 42) - (6+3) =  192
+	// step size 192/107  1.794 << step size per line
+	fix32 rightFromCenter = FIX32(-22); // tree width is 56 ..   half of 56 is 28
+	fix32 leftFromCenter = FIX32(-34);	// tree width is 56 ..   half of 56 is 28
+	fix32 step = FIX32(1.794);
 	for (int i = 224 - ZMAP_LENGTH; i < 224; i++)
 	{
 		roadOffsetRight[i] = rightFromCenter;
@@ -327,8 +381,6 @@ int main(u16 hard)
 		leftFromCenter = fix32Sub(leftFromCenter, step);
 		KLog_F2(" i: ", FIX32(i), "  road offset: ", roadOffsetRight[i]);
 	}
-
-
 
 	//////////////////////////////////////////////////////////////
 	// VDP basic setup
@@ -381,7 +433,7 @@ int main(u16 hard)
 	segment_position = zmap[ZMAP_LENGTH - 1]; // put it at the farthest away point
 
 	// set spped through z
-	speed = FIX32(-0.40);
+	speed = FIX32(0.0);
 	//speed = FIX32(-0.1);
 
 	//////////////////////////////////////////////////////////////
@@ -393,49 +445,27 @@ int main(u16 hard)
 	}
 	SYS_enableInts();
 
+	// Asynchronous joystick handler.
+	JOY_setEventHandler(joypadHandler);
+
 	// Main loop
-	u16 lastSet = -1;
 	while (TRUE)
 	{
 		// update
 		updateTrees();
 		update();
-
-
+		updateCar();
 
 		for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
 		{
 			// update z-order  for trees
-    	SPR_setDepth(trees[i].sprite, 224 - fix32ToInt(trees[i].pos_y) );
+			SPR_setDepth(trees[i].sprite, 224 - fix32ToInt(trees[i].pos_y));
 			// Draw tree at new position
 			SPR_setPosition(trees[i].sprite, fix32ToInt(trees[i].pos_x), fix32ToInt(trees[i].pos_y));
-
 		}
 
 		// Draw car at now position
 		SPR_setPosition(carSprite.sprite, fix32ToInt(carSprite.pos_x), fix32ToInt(carSprite.pos_y));
-
-		fix32 dx = segments[bottom_segments_index].dx;
-		if (dx < FIX32(-0.02) )
-		{
-			SPR_setFrame(carSprite.sprite, 0);
-		}
-		else if (dx < FIX32(0.0) )
-		{
-			SPR_setFrame(carSprite.sprite, 1);
-		}
-		else if (dx >= FIX32(0.02) )
-		{
-			SPR_setFrame(carSprite.sprite, 4);
-		}
-		else if (dx > FIX32(0.0) )
-		{
-			SPR_setFrame(carSprite.sprite, 3);
-		}
-		else
-		{
-			SPR_setFrame(carSprite.sprite, 2);
-		}
 
 		SPR_update();
 
@@ -444,9 +474,9 @@ int main(u16 hard)
 		// move the background
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
 
-		fix32 h= FIX32( horizon_line - 113 );
-		h = fix32Div( h, FIX32(6));
-		VDP_setVerticalScroll( BG_B, fix32ToInt( h ));
+		fix32 h = FIX32(horizon_line - 113);
+		h = fix32Div(h, FIX32(6));
+		VDP_setVerticalScroll(BG_B, fix32ToInt(h));
 
 		SYS_doVBlankProcess();
 	}
