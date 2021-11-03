@@ -25,6 +25,8 @@ u8 line_color = 0; // 0 -uninit, 1-light, 2-dark
 u8 side_color = 0;
 u8 grass_color = 0; // 0 -uninit, 1-light, 2-dark
 
+s16 roadDX[HORIZONTAL_REZ];
+
 // Zmap for tracking segment position
 #define ZMAP_LENGTH 110
 fix16 zmap[ZMAP_LENGTH];
@@ -66,53 +68,19 @@ fix16 segment_position = FIX16(0); // keep track of the segment position on scre
 fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
 s16 horizon_line = 223;							// keep track of where the horizon is
 
-void HIntHandler()
-{
-	// set vertical scroll based on hill calculations
-	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);
 
-/*
-	// set color.  No Worky!
-	//asm("move.l #0xC0020000, 0xC00004");
-	if (lineDisplay % 2)
-	{
-		asm volatile ( "move.l #0xC0020000, 0xC00004\n\t");
-		if (colors[lineDisplay] & 1)
-		{
-			asm volatile (
-				"\tmove.w #0x666, 0xC00000.l\n"
-			);
-		}
-		else
-		{
-			asm volatile (
-				"move.w #0xFFF, 0xC00000 \n\t"
-			);
-		}
-	}
-	else
-	{
-		asm("move.l #0xC0060000, 0xC00004");
-		if (colors[lineDisplay] & 1)
-		{
-			asm("move.w #0x060, 0xC00000");
-		}
-		else
-		{
-			asm("move.w #0x0C0, 0xC00000");
-		}
-	}
-*/
+// Sprites
+struct CP_SPRITE {
+	Sprite *sprite;
+	fix16 pos_x;
+	fix16 pos_y;
+};
+struct CP_SPRITE carSprite;
+#define NUMBER_OF_TREES 6
+struct CP_SPRITE trees[NUMBER_OF_TREES];
 
-	// Move to the next line for the next horizontal interrupt.
-	lineDisplay++;
-}
 
-void VIntHandler()
-{
-	// Make sure HInt always starts with line 0
-	lineDisplay = 0;
-}
+
 
 // My interpretation of the pseudo-code in
 // http://www.extentofthejam.com/pseudo/#curves
@@ -190,6 +158,8 @@ void update()
 
 				// coloring
 				colors[cdp] = zmapval & 1;
+
+				roadDX[ cdp ] = fix16ToInt( fix16Mul( dx, FIX16(100)));
 			}
 		}
 
@@ -250,6 +220,7 @@ int main(u16 hard)
 		HscrollA[i] = SCROLL_CENTER;
 		HscrollB[i] = SCROLL_CENTER;
 		VscrollA[i] = 0;
+		roadDX[i] = 0;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -264,6 +235,24 @@ int main(u16 hard)
 	
 	VDP_setVerticalScroll(BG_B, 0);
 
+
+	//////////////////////////////////////////////////////////////
+	// Setup Sprites
+	SPR_init();
+	VDP_setPalette(PAL3, car.palette->data);
+	carSprite.sprite = NULL;
+	carSprite.pos_x  = FIX16(116.0);
+	carSprite.pos_y  = FIX16(160.0);
+	carSprite.sprite = SPR_addSprite(&car,								 // Sprite defined in resources
+														fix16ToInt(carSprite.pos_x), // starting X position
+														fix16ToInt(carSprite.pos_y), // starting Y position
+														TILE_ATTR(PAL3,			 // specify palette
+																			1,				 // Tile priority ( with background)
+																			FALSE,		 // flip the sprite vertically?
+																			FALSE			 // flip the sprite horizontally
+																			));
+
+	SPR_setFrame(carSprite.sprite, 2);
 	//////////////////////////////////////////////////////////////
 	// init segments
 	bottom_segments_index = 0;
@@ -279,69 +268,44 @@ int main(u16 hard)
 	{
 		VDP_setHIntCounter(0);
 		VDP_setHInterrupt(1);
-
-		//SYS_setHIntCallback(HIntHandler);
-		//SYS_setVIntCallback(VIntHandler);
 	}
 	SYS_enableInts();
 
 	// Main loop
-	//fix16 colorCycle = FIX16(0.0);
 	u16 lastSet = -1;
 	while (TRUE)
 	{
 		// update
 		update();
 
-		/* sort of works 
-		// cycle colors
-		colorCycle = fix16Add( colorCycle, FIX16(0.5));
-		u16 temp = fix16ToInt(colorCycle);
-		if (temp != lastSet)
+		SPR_setPosition(carSprite.sprite, fix16ToInt(carSprite.pos_x), fix16ToInt(carSprite.pos_y));
+		if (roadDX[220] < -2)
 		{
-			lastSet = temp;
-			if (temp == 0)
-			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0xFFFFFF));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0x666666));
+			SPR_setFrame(carSprite.sprite, 0);
+		}
+		else if (roadDX[220] < 0)
+		{
+			SPR_setFrame(carSprite.sprite, 1);
+		}
+		else if (roadDX[220] >= 2)
+		{
+			SPR_setFrame(carSprite.sprite, 4);
+		}
+		else if (roadDX[220] >= 1)
+		{
+			SPR_setFrame(carSprite.sprite, 3);
+		}
+		else
+		{
+			SPR_setFrame(carSprite.sprite, 2);
+		}
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x00CC00));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x008800));
-			}
-			else if (temp == 1)
-			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0xFFFFFF));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0x666666));
-
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x00CC00));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x008800));
-			}
-			else
-			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0xFFFFFF));
-
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x00CC00));
-			}
-			if (temp > 3)
-			{
-				colorCycle = FIX16(0);
-			}
-		} 
-		*/
+		SPR_update();
 
 		// curve the road with horizontal scrolling
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
 		// move the background
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
-
 		SYS_doVBlankProcess();
 	}
 }
