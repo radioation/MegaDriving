@@ -3,7 +3,7 @@
 #include <genesis.h>
 #include "resources.h"
 
-#define HORIZONTAL_REZ 224  // number of line sin the screen.
+#define VERTICAL_REZ 224  // number of line sin the screen.
 
 // image is 512x224.  Screen is 320, we want to move halfway
 // (512-320)/2
@@ -43,8 +43,8 @@ u16 segments_index = 0;
 fix16 speed = FIX16(0.00);
 
 // Horizontal scrolling values
-s16 HscrollA[HORIZONTAL_REZ];
-s16 HscrollB[HORIZONTAL_REZ];
+s16 HscrollA[VERTICAL_REZ];
+s16 HscrollB[VERTICAL_REZ];
 
 // position variables.
 fix16 segment_position = FIX16(0); // keep track fo the segment position onscreen
@@ -132,7 +132,7 @@ int main(u16 hard)
 	//////////////////////////////////////////////////////////////
 	// initialize scrolling values to the center of the image.
 	VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
-	for (int i = 0; i < HORIZONTAL_REZ; i++)
+	for (int i = 0; i < VERTICAL_REZ; i++)
 	{
 		HscrollA[i] = SCROLL_CENTER;
 		HscrollB[i] = SCROLL_CENTER;
@@ -164,7 +164,7 @@ int main(u16 hard)
 		update();
 
 		// curve the road with horizontal scrolling.
-		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, HORIZONTAL_REZ, DMA_QUEUE);
+		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE);
 		// move the background
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 120, DMA_QUEUE);
 
