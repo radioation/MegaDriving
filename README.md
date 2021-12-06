@@ -13,6 +13,7 @@ cycling used on the grass and road in C.  So the code is a mix of C and some ass
 The code has been tested on [BlastEM and Real Hardware](https://youtu.be/p99XATFhSpo)
 
 # TODO
-* Improve steering code
-* Look into smoothing out road side object and car motion in the Y direction.
-* Add readme.md files to go over the code in each example.
+* Improve steering code.
+* Look into smoothing road side object and car motion in the Y direction.
+* Add readme.md files to explain the code in each example.
+* Look at making my own fixed-point implementation for more decimal   
