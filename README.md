@@ -11,6 +11,5 @@ it's a mix of C and some assembly code.
 The code has been tested on [BlastEM and Real Hardware](https://youtu.be/p99XATFhSpo)
 
 # TODO
-* Add better joypad controls.
-* Improve upon the two-segment road display. 
-* Add other vehicles.
+* Improve steering code
+* Add readme.md files to go over the code in each example.
