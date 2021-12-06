@@ -14,4 +14,5 @@ The code has been tested on [BlastEM and Real Hardware](https://youtu.be/p99XATF
 
 # TODO
 * Improve steering code
+* Look into smoothing out road side object and car motion in the Y direction.
 * Add readme.md files to go over the code in each example.
