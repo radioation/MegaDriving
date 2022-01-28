@@ -22,6 +22,8 @@ void CreateCurve(fix32 dx)
 	{
 		ddx = fix32Add(dx, ddx);
 		current_x = fix32Add(current_x, ddx);
+
+		// store the current x in HscrollA to shift the road in the main loop
 		HscrollA[bgY] = SCROLL_CENTER + fix32ToInt(current_x);
 	}
 }

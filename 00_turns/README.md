@@ -62,9 +62,28 @@ The actual scrolling is performed by `VDP_setHorizontalScrollLine()` in the main
 
 ## Curves
 
-* dx
-* ddx
+Lou's pseudo code in [Curves and Steering](http://www.extentofthejam.com/pseudo/#curves) bends road segments using two values
+* dx : Curve amount, constant per segment
+* ddx : (*Cumulative*) Curve amount, changes per line
 
-use horizontal scrolling to shift each line by a certain amount.
+`dx` tells the program how far to shift each line as we move from the bottom of the screen to the top of the road. `ddx` accumulates the amount shifted so that each line up is shifted further than the previous line.
+
+Since I'm not using multiple segments in this example, the curve can be created with a simple loop.  I'm moving from the bottom of the screen (224) to the top of the road in the background image (116).     The `current_x` value is added to the `SCROLL_CENTER` and stored in `HscrollA[]`.   
+~~~c// Create example curves.
+// dx: curve amount.  Constant over the image
+void CreateCurve(fix32 dx)
+{
+	fix32 current_x = FIX32(0); // current x shift
+	fix32 ddx = FIX32(0);				// Cumulative Curve amount. Changes every line
+
+	// start from the bottom of the screen and move up to the top of the road.
+	for (u16 bgY = 223; bgY >= 116; bgY--)
+	{
+		ddx = fix32Add(dx, ddx); // shift ddx by dx 
+		current_x = fix32Add(current_x, ddx);
+		HscrollA[bgY] = SCROLL_CENTER + fix32ToInt(current_x);
+	}
+}
 
 
+~~~
