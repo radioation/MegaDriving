@@ -60,11 +60,12 @@ void update()
 	fix16 dx = FIX16(0);	// Curve amount, constant per segment.
 	fix16 ddx = FIX16(0); // Curve amount, changes per line
 
+
 	// for each line of the screen from the bottom to the top
-	// I've defined the ZMAP to have the bottom of the screen
-	// (nearest position) start at zmap[0]
 	for (u16 y = 0; y < ZMAP_LENGTH; ++y)
 	{
+		// I've defined the ZMAP to have the bottom of the screen
+		// (nearest position) start at zmap[0]
 		fix16 z = zmap[y];
 		// if line of screen's Z Map position is below segment position
 		if (z < segment_position)
