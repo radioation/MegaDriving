@@ -23,18 +23,18 @@ typedef struct
 } ROAD_SEGMENT;
 const ROAD_SEGMENT segments[ROAD_SEGMENTS_LENGTH] = {
 		{FIX16(0), FIX16(0)},
-		{FIX16(-0.02), FIX16(-0.120)},
-		{FIX16(-0.04), FIX16(-0.32)},
-		{FIX16(-0.02), FIX16(-0.120)},
+		{FIX16(-0.02), FIX16(0.120)},
+		{FIX16(-0.04), FIX16(0.32)},
+		{FIX16(-0.02), FIX16(0.120)},
 		{FIX16(0), FIX16(0)},
 		{FIX16(0), FIX16(0)},
-		{FIX16(0.06), FIX16(0.36)},
-		{FIX16(-0.06), FIX16(-0.36)},
+		{FIX16(0.06), FIX16(-0.36)},
+		{FIX16(-0.06), FIX16(0.36)},
 		{FIX16(0), FIX16(0)},
-		{FIX16(0.02), FIX16(0.12)},
+		{FIX16(0.02), FIX16(-0.12)},
 		{FIX16(0), FIX16(0)},
-		{FIX16(-0.03), FIX16(-0.18)},
-		{FIX16(0.03), FIX16(0.18)}};
+		{FIX16(-0.03), FIX16(0.18)},
+		{FIX16(0.03), FIX16(-0.18)}};
 
 u16 bottom_segments_index = 0;
 u16 segments_index = 0;
@@ -89,7 +89,7 @@ void update()
 	}
 
 	// scroll the background
-	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
+	background_position = fix16Add(background_position, segments[bottom_segments_index].bgdx);
 	for (u16 y = 0; y < 120; ++y)
 	{
 		HscrollB[y] = fix16ToInt(background_position);
