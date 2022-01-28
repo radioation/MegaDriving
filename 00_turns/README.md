@@ -84,6 +84,12 @@ void CreateCurve(fix32 dx)
 		HscrollA[bgY] = SCROLL_CENTER + fix32ToInt(current_x);
 	}
 }
-
-
 ~~~
+
+The sign and magnitude of `dx` determines the direction and sharpness of a given curve.  
+
+`dx = 0.005` 
+![Background Image A](./imgs/dx_005.png)
+
+`dx = -0.015` 
+![Background Image A](./imgs/dx-015.png)
