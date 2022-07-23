@@ -793,8 +793,6 @@ int main(u16 hard)
 		segmentDistances[i] = trackLength;
 		KLog_F2(" i: ", FIX32(i), "  trackLength: ", trackLength);
 	}
-	playerSprite->speed = FIX32(0.35);
-	playerSprite->speed = FIX32(0.0);
 
 	//////////////////////////////////////////////////////////////
 	// VDP basic setup
