@@ -1,7 +1,11 @@
 from PIL import Image, ImageDraw
 
+
 width = 512
-midpint = 256
+midpint = width / 2
+bottomStripWidth = 32
+
+bottomLeftStart =  ( width - bottomStripWidth * width ) / 2;
 height = 224
 step = 32
 
@@ -10,8 +14,7 @@ dImage = ImageDraw.Draw( img )
 
 
 for x in range( 0, width,2 ):
-    print(x) 
-    shape = [ (x, 0), ( x*32, 223 ), ( x*32 + 32, 223), (x,0 ) ]
+    shape = [ (x, 0), ( bottomLeftStart + x*bottomStripWidth, 223 ), (bottomLeftStart +  x*bottomStripWidth + bottomStripWidth, 223), (x,0 ) ]
     dImage.polygon( shape, fill = "green" , outline="green")
 
 
