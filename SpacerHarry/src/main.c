@@ -20,8 +20,9 @@ extern u16 colors[VERTICAL_REZ];
 // Zmap for tracking segment position -
 #define ZMAP_LENGTH 111 
 fix32 zmap[ZMAP_LENGTH];
-fix32 hscrollIncrement[ZMAP_LENGTH];
-fix32 hscrollIncrement2[ZMAP_LENGTH];
+fix32 hScrollIncrement1[ZMAP_LENGTH];
+fix32 hScrollIncrement2[ZMAP_LENGTH];
+fix32 hScrollIncrement3[ZMAP_LENGTH];
 fix32 workScrollA[VERTICAL_REZ]; // working buffer to calculate actual scroll value
 s16 scrollSteps = 0;
 
@@ -120,38 +121,57 @@ void update()
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hscrollIncrement2[j]);
+			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement3[j]);
 			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps += 8;
 	}
-	else if (fix32ToInt(playerSprite->posX) < 148)
+	else if (fix32ToInt(playerSprite->posX) < 138)
 	{
 
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hscrollIncrement[j]);
+			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement2[j]);
 			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps += 4;
+	}
+	else if (fix32ToInt(playerSprite->posX) < 150)
+	{
+
+		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		{
+			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement1[j]);
+			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+		}
+		scrollSteps += 2;
 	}
 	else if (fix32ToInt(playerSprite->posX) > 252)
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hscrollIncrement2[j]);
+			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement3[j]);
 			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps -= 8;
 	}
-	else if (fix32ToInt(playerSprite->posX) > 180)
+	else if (fix32ToInt(playerSprite->posX) > 190)
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hscrollIncrement[j]);
+			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement2[j]);
 			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps -= 4;
+	}
+	else if (fix32ToInt(playerSprite->posX) > 170)
+	{
+		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		{
+			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement1[j]);
+			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+		}
+		scrollSteps -= 2;
 	}
 
 	if (scrollSteps >= 64 || scrollSteps <= -64)
@@ -166,20 +186,24 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// precalculate some stuff
-	fix32 step = fix32Div(FIX32(4), FIX32(ZMAP_LENGTH));	// divide bottom scroll increment by the height of the ground graphic.
-	fix32 step2 = fix32Div(FIX32(8), FIX32(ZMAP_LENGTH)); // bigger step
-	fix32 currentXDelta = FIX32(0);
+	fix32 step1 = fix32Div(FIX32(2), FIX32(ZMAP_LENGTH));	// divide bottom scroll increment by the height of the ground graphic.
+	fix32 step2 = fix32Div(FIX32(4), FIX32(ZMAP_LENGTH));	
+	fix32 step3 = fix32Div(FIX32(8), FIX32(ZMAP_LENGTH)); 
+	fix32 currentXDelta1 = FIX32(0);
 	fix32 currentXDelta2 = FIX32(0);
+	fix32 currentXDelta3 = FIX32(0);
 	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
 		// http://www.extentofthejam.com/pseudo/
 		// Z = Y_world / (Y_screen - (height_screen / 2))
 		zmap[i] = fix32Div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
-		hscrollIncrement[i] = currentXDelta;
-		currentXDelta = fix32Add(currentXDelta, step);
-		hscrollIncrement2[i] = currentXDelta2;
+		hScrollIncrement1[i] = currentXDelta1;
+		currentXDelta1 = fix32Add(currentXDelta1, step1);
+		hScrollIncrement2[i] = currentXDelta2;
 		currentXDelta2 = fix32Add(currentXDelta2, step2);
-		KLog_F4("i: ", FIX32(i), " z: ", zmap[i], " d4: ", hscrollIncrement[i], " d8: ", hscrollIncrement2[i]);
+		hScrollIncrement3[i] = currentXDelta3;
+		currentXDelta3 = fix32Add(currentXDelta3, step3);
+		KLog_F4("i: ", FIX32(i), " z: ", zmap[i], " d4: ", hScrollIncrement2[i], " d8: ", hScrollIncrement3[i]);
 	}
 
 	//////////////////////////////////////////////////////////////

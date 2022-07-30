@@ -20,7 +20,7 @@
 		.set LINE_DARK_COLOR, 0x666
 		.set LINE_LIGHT_COLOR, 0xFFF
 
-		.set GRASS_DARK_COLOR, 0x086
+		.set GRASS_DARK_COLOR, 0x063
 		.set GRASS_LIGHT_COLOR, 0x0A0
     
 *------------------------------------------------
