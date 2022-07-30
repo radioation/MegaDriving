@@ -112,11 +112,24 @@ void updatePlayer()
 
 // My interpretation of the pseudo-code in
 // http://www.extentofthejam.com/pseudo/#curves
-// and the hills described in
-// http://www.extentofthejam.com/pseudo/#hills
 void update()
 {
+	// COLORS ///////////////////////////////////////////////////////
+	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
+	if (fix32ToInt(colorCyclePosition) < 0)
+	{
+		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
+	}
 
+	horizonLine = 223 - ZMAP_LENGTH;
+	for (u16 i = 223, j = horizonLine; i > 223 - ZMAP_LENGTH; --i, ++j)
+	{
+		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[i-ZMAP_LENGTH]);
+		u16 zcolor = (u16)fix32ToInt(tmpz << 2); // >> 1);
+		colors[j] = zcolor & 1;
+	}
+
+	// HORIZONTAL SCROLLING  ////////////////////////////////////////
 	if (fix32ToInt(playerSprite->posX) < 68)
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
@@ -186,9 +199,9 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// precalculate some stuff
-	fix32 step1 = fix32Div(FIX32(2), FIX32(ZMAP_LENGTH));	// divide bottom scroll increment by the height of the ground graphic.
-	fix32 step2 = fix32Div(FIX32(4), FIX32(ZMAP_LENGTH));	
-	fix32 step3 = fix32Div(FIX32(8), FIX32(ZMAP_LENGTH)); 
+	fix32 step1 = fix32Div(FIX32(2), FIX32(ZMAP_LENGTH)); // divide bottom scroll increment by the height of the ground graphic.
+	fix32 step2 = fix32Div(FIX32(4), FIX32(ZMAP_LENGTH));
+	fix32 step3 = fix32Div(FIX32(8), FIX32(ZMAP_LENGTH));
 	fix32 currentXDelta1 = FIX32(0);
 	fix32 currentXDelta2 = FIX32(0);
 	fix32 currentXDelta3 = FIX32(0);
@@ -235,7 +248,6 @@ int main(u16 hard)
 	playerSprite->segment_index = 0;
 	playerSprite->offsetY = 40; // 80~ish tall
 	playerSprite->offsetX = 28; // 56~ish wide
-	playerSprite->sprite = NULL;
 	playerSprite->posX = FIX32(160.0);
 	playerSprite->posY = FIX32(170.0);																													 //
 	playerSprite->sprite = SPR_addSprite(&player,																								 // Sprite defined in resources
@@ -246,6 +258,7 @@ int main(u16 hard)
 																								 FALSE,																				 // flip the sprite vertically?
 																								 FALSE																				 // flip the sprite horizontally
 																								 ));
+	playerSprite->speed = FIX32(0.03);
 
 	SPR_setAnim(playerSprite->sprite, 1);
 	SPR_setFrame(playerSprite->sprite, 0);
@@ -256,7 +269,6 @@ int main(u16 hard)
 	playerShadowSprite->segment_index = 0;
 	playerShadowSprite->offsetY = 8;
 	playerShadowSprite->offsetX = 28;
-	playerShadowSprite->sprite = NULL;
 	playerShadowSprite->posX = FIX32(160.0);
 	playerShadowSprite->posY = FIX32(210.0);																																			 //
 	playerShadowSprite->sprite = SPR_addSprite(&shadow,																														 // Sprite defined in resources
@@ -272,10 +284,9 @@ int main(u16 hard)
 	bossSprite = malloc(sizeof(struct CP_SPRITE));
 	bossSprite->position = FIX32(0);
 	bossSprite->segment_index = 0;
-	bossSprite->offsetY = 50; // 56 tall bottom is 51 ish
-	bossSprite->offsetX = 44; // 88 wide
-	bossSprite->sprite = NULL;
-	bossSprite->posX = FIX32(162.0);
+	bossSprite->offsetY = 0; // not using offsets for this demo
+	bossSprite->offsetX = 0;
+	bossSprite->posX = FIX32(112.0);
 	bossSprite->posY = FIX32(60.0);																	 //
 	bossSprite->sprite = SPR_addSprite(&boss,												 // Sprite defined in resources
 																		 fix32ToInt(bossSprite->posX), // starting X position
@@ -289,10 +300,9 @@ int main(u16 hard)
 	bossShadowSprite = malloc(sizeof(struct CP_SPRITE));
 	bossShadowSprite->position = FIX32(0);
 	bossShadowSprite->segment_index = 0;
-	bossShadowSprite->offsetY = 50; // 56 tall bottom is 51 ish
-	bossShadowSprite->offsetX = 44; // 88 wide
-	bossShadowSprite->sprite = NULL;
-	bossShadowSprite->posX = FIX32(180.0);
+	bossShadowSprite->offsetY = 0; // not using offsets for this demo
+	bossShadowSprite->offsetX = 0; // 
+	bossShadowSprite->posX = FIX32(132.0);
 	bossShadowSprite->posY = FIX32(180.0);																			 //
 	bossShadowSprite->sprite = SPR_addSprite(&shadow,														 // Sprite defined in resources
 																					 fix32ToInt(bossShadowSprite->posX), // starting X position
@@ -313,7 +323,7 @@ int main(u16 hard)
 		VDP_setHIntCounter(0);
 		VDP_setHInterrupt(1);
 	}
-	//	SYS_enableInts();
+	SYS_enableInts();
 
 	// Asynchronous joystick handler.
 	JOY_init();
