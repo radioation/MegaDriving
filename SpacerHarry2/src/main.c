@@ -6,11 +6,10 @@
 //  512/2  - 320 /2
 #define SCROLL_CENTER -96
 
-// Keep track of the current line during Horizontal Interrupts
-u16 lineDisplay = 0;
-
 // Horizontal Scrolling values
 s16 HscrollA[VERTICAL_REZ];
+s16 HscrollB[VERTICAL_REZ];
+
 // Vertical Scrolling values ( to simulate hills )
 extern u16 VscrollA[VERTICAL_REZ];
 
@@ -30,7 +29,12 @@ s16 scrollSteps = 0;
 fix32 colorCyclePosition = FIX32(0);						// keep track of the color cycling position
 fix16 backgroundPosition = FIX16(SCROLL_CENTER); // handle background X position
 
-extern s16 horizonLine;										// keep track of where the horizon is
+extern s16 horizonLine;
+const fix32 fullGroundLineCount = FIX32(ZMAP_LENGTH);
+fix32 b = FIX32( 169.333);
+fix32 groundLineCount;
+fix32 groundLineStep;
+
 
 fix32 centerLine = FIX32(160); // center line at the front (bottom) of the screen
 
@@ -106,7 +110,7 @@ void updatePlayer()
 	// player position affects H/Y
 	if (playerXDir < 0)
 	{
-		playerSprite->posX = fix32Sub(playerSprite->posX, FIX32(2));
+		playerSprite->posX = fix32Sub(playerSprite->posX, FIX32(2.5));
 		if (playerSprite->posX < FIX32(playerSprite->offsetX))
 		{
 			playerSprite->posX = FIX32(playerSprite->offsetX);
@@ -114,7 +118,7 @@ void updatePlayer()
 	}
 	else if (playerXDir > 0)
 	{
-		playerSprite->posX = fix32Add(playerSprite->posX, FIX32(2));
+		playerSprite->posX = fix32Add(playerSprite->posX, FIX32(2.5));
 		if (playerSprite->posX > FIX32(292))
 		{
 			playerSprite->posX = FIX32(292);
@@ -122,102 +126,155 @@ void updatePlayer()
 	}
 	playerShadowSprite->posX = playerSprite->posX;
 
+	
 	if (playerYDir < 0)
 	{
-		playerSprite->posY = fix32Sub(playerSprite->posY, FIX32(2));
-		if (playerSprite->posY < FIX32(playerSprite->offsetY))
+		playerSprite->posY = fix32Sub(playerSprite->posY, FIX32(2.5));
+		if (playerSprite->posY < FIX32(52))
 		{
-			playerSprite->posY = FIX32(playerSprite->offsetY);
+			playerSprite->posY = FIX32(52);
 		}
-			SPR_setAnim(playerSprite->sprite, 1);
+		SPR_setAnim(playerSprite->sprite, 1);
+
 	}
 	else if (playerYDir > 0)
 	{
-		playerSprite->posY = fix32Add(playerSprite->posY, FIX32(2));
+		playerSprite->posY = fix32Add(playerSprite->posY, FIX32(2.5));
 		if (playerSprite->posY > FIX32(172))
 		{
 			playerSprite->posY = FIX32(172);
 			SPR_setAnim(playerSprite->sprite, 0);
 		}
 	}
-	// determine frame
-	//SPR_setFrame(playerSprite->sprite, 0);
+	if( playerYDir != 0 ) {
+		// get the horizon line
+		// find step   h = mx + b  :  m happens to be (-1/2)
+		fix32 h = b - fix32Div(    playerSprite->posY, FIX32(3.0) );
+		horizonLine = fix32ToInt( h  );
+		// ground line steps
+		groundLineCount = fix32Sub( FIX32(223), h );
+		groundLineStep = fix32Div( fullGroundLineCount, groundLineCount);
+	}
 }
 
-// My interpretation of the pseudo-code in
-// http://www.extentofthejam.com/pseudo/#curves
+
+
 void update()
 {
-	// COLORS ///////////////////////////////////////////////////////
+	// VERTICAL PROCESSING //////////////////////////////////////////
 	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
 	if (fix32ToInt(colorCyclePosition) < 0)
 	{
 		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
 	}
 
-	horizonLine = 223 - ZMAP_LENGTH;
-	for (u16 i = 223, j = horizonLine; i > 223 - ZMAP_LENGTH; --i, ++j)
-	{
-		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[i-ZMAP_LENGTH]);
+	fix32 i = FIX32(223);
+	u16 c = 223;
+	u16 j = horizonLine; 
+
+	while( c > horizonLine ) {
+		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[fix32ToInt(i)-ZMAP_LENGTH]);
 		u16 zcolor = (u16)fix32ToInt(tmpz << 2); // >> 1);
 		colors[j] = zcolor & 1;
+		VscrollA[c] =  fix32ToInt(i) - c; 
+
+		i = fix32Sub( i, groundLineStep);
+		--c;
+		++j;
 	}
 
+
+	for (s16 h = horizonLine; h >= 0; --h)
+	{
+		VscrollA[h] = -h;
+	}
+
+
+
 	// HORIZONTAL SCROLLING  ////////////////////////////////////////
+	fix16 bgDelta = FIX16(0);
 	if (fix32ToInt(playerSprite->posX) < 68)
 	{
-		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		fix32 i = FIX32(223);
+		u16 c = 223;
+		while (c > horizonLine)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement3[j]);
-			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement3[fix32ToInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			i = fix32Sub(i, groundLineStep);
+			--c;
 		}
+		bgDelta = FIX16(-0.8);
 		scrollSteps += 8;
 	}
 	else if (fix32ToInt(playerSprite->posX) < 138)
 	{
-
-		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		fix32 i = FIX32(223);
+		u16 c = 223;
+		while (c > horizonLine)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement2[j]);
-			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement2[fix32ToInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			i = fix32Sub(i, groundLineStep);
+			--c;
 		}
+		bgDelta = FIX16(-0.4);
 		scrollSteps += 4;
 	}
 	else if (fix32ToInt(playerSprite->posX) < 150)
 	{
-
-		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		fix32 i = FIX32(223);
+		u16 c = 223;
+		while (c > horizonLine)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement1[j]);
-			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement1[fix32ToInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			i = fix32Sub(i, groundLineStep);
+			--c;
 		}
+		bgDelta = FIX16(-0.2);
 		scrollSteps += 2;
 	}
 	else if (fix32ToInt(playerSprite->posX) > 252)
 	{
-		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		fix32 i = FIX32(223);
+		u16 c = 223;
+		while (c > horizonLine)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement3[j]);
-			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement3[fix32ToInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			i = fix32Sub(i, groundLineStep);
+			--c;
 		}
+		bgDelta = FIX16(0.8);
 		scrollSteps -= 8;
 	}
 	else if (fix32ToInt(playerSprite->posX) > 190)
 	{
-		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		fix32 i = FIX32(223);
+		u16 c = 223;
+		while (c > horizonLine)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement2[j]);
-			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement2[fix32ToInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			i = fix32Sub(i, groundLineStep);
+			--c;
 		}
+		bgDelta = FIX16(0.4);
 		scrollSteps -= 4;
 	}
 	else if (fix32ToInt(playerSprite->posX) > 170)
 	{
-		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
+		fix32 i = FIX32(223);
+		u16 c = 223;
+		while (c > horizonLine)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement1[j]);
-			HscrollA[i] = fix32ToInt(workScrollA[i]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement1[fix32ToInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			i = fix32Sub(i, groundLineStep);
+			--c;
 		}
+		bgDelta = FIX16(0.2);
 		scrollSteps -= 2;
 	}
 
@@ -226,11 +283,25 @@ void update()
 		scrollSteps = 0;
 		memset(workScrollA, 0, sizeof(workScrollA));
 	}
+
+
+	if (playerSprite->speed != FIX32(0.0))
+	{
+		backgroundPosition = fix16Sub(backgroundPosition, bgDelta );
+		for (u16 y = 12; y < 160; ++y)
+		{
+			HscrollB[y] = fix16ToInt(backgroundPosition);
+		}
+	}
+
+
 }
 
 int main(u16 hard)
 {
-
+	horizonLine = 223 - ZMAP_LENGTH;
+	groundLineCount = fix32Sub(FIX32(223), horizonLine);
+	groundLineStep = fix32Div(fullGroundLineCount, fullGroundLineCount);
 	//////////////////////////////////////////////////////////////
 	// precalculate some stuff
 	fix32 step1 = fix32Div(FIX32(2), FIX32(ZMAP_LENGTH)); // divide bottom scroll increment by the height of the ground graphic.
@@ -250,7 +321,7 @@ int main(u16 hard)
 		currentXDelta2 = fix32Add(currentXDelta2, step2);
 		hScrollIncrement3[i] = currentXDelta3;
 		currentXDelta3 = fix32Add(currentXDelta3, step3);
-		KLog_F4("i: ", FIX32(i), " z: ", zmap[i], " d4: ", hScrollIncrement2[i], " d8: ", hScrollIncrement3[i]);
+		// KLog_F4("i: ", FIX32(i), " z: ", zmap[i], " d4: ", hScrollIncrement2[i], " d8: ", hScrollIncrement3[i]);
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -269,9 +340,14 @@ int main(u16 hard)
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
 	VDP_setPalette(PAL0, ground.palette->data);
+	VDP_setPalette(PAL3, background.palette->data);
 	int ind = TILE_USERINDEX;
 	VDP_drawImageEx(BG_A, &ground, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+	ind += ground.tileset->numTile;
+	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
+	ind += background.tileset->numTile;
 
+	VDP_setVerticalScroll(BG_B, 122 - horizonLine);
 	//////////////////////////////////////////////////////////////
 	// Setup Car Sprites
 	SPR_init();
@@ -292,10 +368,9 @@ int main(u16 hard)
 																								 FALSE,																				 // flip the sprite vertically?
 																								 FALSE																				 // flip the sprite horizontally
 																								 ));
-	playerSprite->speed = FIX32(0.03);
+	playerSprite->speed = FIX32(0.05);
 
 	SPR_setAnim(playerSprite->sprite, 1);
-	SPR_setFrame(playerSprite->sprite, 0);
 	SPR_setDepth(playerSprite->sprite, 0);
 
 	playerShadowSprite = malloc(sizeof(struct CP_SPRITE));
@@ -335,7 +410,7 @@ int main(u16 hard)
 	bossShadowSprite->position = FIX32(0);
 	bossShadowSprite->segment_index = 0;
 	bossShadowSprite->offsetY = 0; // not using offsets for this demo
-	bossShadowSprite->offsetX = 0; // 
+	bossShadowSprite->offsetX = 0; //
 	bossShadowSprite->posX = FIX32(132.0);
 	bossShadowSprite->posY = FIX32(180.0);																			 //
 	bossShadowSprite->sprite = SPR_addSprite(&shadow,														 // Sprite defined in resources
@@ -378,7 +453,12 @@ int main(u16 hard)
 		// update tsprites
 		SPR_update();
 
+		// move the ground
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE);
+
+		// move the background
+		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
+		VDP_setVerticalScroll(BG_B, 122 - horizonLine);
 
 		SYS_doVBlankProcess();
 	}
