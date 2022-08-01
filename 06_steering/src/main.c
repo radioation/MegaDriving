@@ -932,7 +932,7 @@ int main(u16 hard)
 		// move the background
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
 
-		fix32 h = FIX16(horizonLine - 113);
+		fix16 h = FIX16(horizonLine - 113);
 		//h = fix16Div(h, FIX16(6));
 		h = h >> 2;
 		VDP_setVerticalScroll(BG_B, fix16ToInt(h));
