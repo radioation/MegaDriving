@@ -302,33 +302,33 @@ int main(bool hard)
 			lastSet = temp;
 			if (temp == 0)
 			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0xFFFFFF));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(1, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(2, RGB24_TO_VDPCOLOR(0xFFFFFF));
+				PAL_setColor(3, RGB24_TO_VDPCOLOR(0x666666));
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x00CC00));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(5, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(6, RGB24_TO_VDPCOLOR(0x00CC00));
+				PAL_setColor(7, RGB24_TO_VDPCOLOR(0x008800));
 			}
 			else if (temp == 1)
 			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0xFFFFFF));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(1, RGB24_TO_VDPCOLOR(0xFFFFFF));
+				PAL_setColor(2, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(3, RGB24_TO_VDPCOLOR(0x666666));
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x00CC00));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(5, RGB24_TO_VDPCOLOR(0x00CC00));
+				PAL_setColor(6, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(7, RGB24_TO_VDPCOLOR(0x008800));
 			}
 			else
 			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0xFFFFFF));
+				PAL_setColor(1, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(2, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(3, RGB24_TO_VDPCOLOR(0xFFFFFF));
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x00CC00));
+				PAL_setColor(5, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(6, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(7, RGB24_TO_VDPCOLOR(0x00CC00));
 			}
 			if (temp > 3)
 			{
