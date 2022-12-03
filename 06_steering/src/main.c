@@ -807,8 +807,8 @@ int main(bool hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, background.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, background.pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
@@ -820,7 +820,7 @@ int main(bool hard)
 	// Setup Car Sprites
 	//SPR_init();
 	SPR_initEx(900);
-	VDP_setPalette(PAL2, car.palette->data);
+	PAL_setPalette(PAL2, car.pal.data, CPU);
 	playerSprite = malloc(sizeof(struct CP_SPRITE));
 	playerSprite->position = FIX32(0);
 	playerSprite->segment_index = 0;
@@ -880,8 +880,8 @@ int main(bool hard)
 	SPR_setAnimAndFrame(greenCarSprite->sprite, 2, 0);
 	SPR_setDepth(greenCarSprite->sprite, 0);
 
-	VDP_setPalette(PAL1, sign.palette->data);
-	VDP_setPalette(PAL3, bush.palette->data);
+	PAL_setPalette(PAL1, sign.pal.data, CPU);
+	PAL_setPalette(PAL3, bush.pal.data, CPU);
 	createRoadsideObjs();
 
 	//////////////////////////////////////////////////////////////

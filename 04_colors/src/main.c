@@ -254,11 +254,11 @@ int main(bool hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, road.pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
-	VDP_setPalette(PAL2, background.palette->data);
+	PAL_setPalette(PAL2, background.pal.data, CPU);
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += background.tileset->numTile;
 	

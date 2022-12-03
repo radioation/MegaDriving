@@ -396,11 +396,11 @@ int main(bool hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, road.pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
-	VDP_setPalette(PAL1, background.palette->data);
+	PAL_setPalette(PAL1, background.pal.data, CPU);
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += background.tileset->numTile;
 
@@ -409,7 +409,7 @@ int main(bool hard)
 	//////////////////////////////////////////////////////////////
 	// Setup Sprites
 	SPR_init();
-	VDP_setPalette(PAL2, car.palette->data);
+	PAL_setPalette(PAL2, car.pal.data, CPU);
 	carSprite.sprite = NULL;
 	carSprite.pos_x = FIX32(116.0);
 	carSprite.pos_y = FIX32(160.0);
@@ -423,7 +423,7 @@ int main(bool hard)
 																						 ));
 	SPR_setFrame(carSprite.sprite, 2);
 
-	VDP_setPalette(PAL3, tree.palette->data);
+	PAL_setPalette(PAL3, tree.pal.data, CPU);
 	createTrees();
 
 	//////////////////////////////////////////////////////////////
