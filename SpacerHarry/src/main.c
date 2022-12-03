@@ -194,7 +194,7 @@ void update()
 	}
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 
 	//////////////////////////////////////////////////////////////
@@ -234,15 +234,15 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, ground.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, ground_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &ground, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 
 	//////////////////////////////////////////////////////////////
 	// Setup Car Sprites
 	SPR_init();
 	// SPR_initEx(900);
-	VDP_setPalette(PAL1, player.palette->data);
+	PAL_setPalette(PAL1, player_pal.data, CPU);
 	playerSprite = malloc(sizeof(struct CP_SPRITE));
 	playerSprite->position = FIX32(0);
 	playerSprite->segment_index = 0;
@@ -280,7 +280,7 @@ int main(u16 hard)
 																											 FALSE																										 // flip the sprite horizontally
 																											 ));
 
-	VDP_setPalette(PAL2, boss.palette->data);
+	PAL_setPalette(PAL2, boss_pal.data, CPU);
 	bossSprite = malloc(sizeof(struct CP_SPRITE));
 	bossSprite->position = FIX32(0);
 	bossSprite->segment_index = 0;

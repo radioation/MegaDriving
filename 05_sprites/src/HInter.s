@@ -59,8 +59,8 @@ LINE_DARK:
 	cmp.b line_color, %d0
 	jne SET_LINE_DARK   /* if not dark, set the color */
 	jmp GRASS_DARK
-	|move.l	(%sp)+, %d0   /* restore data register 0 */
-	|rte
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
 
 SET_LINE_DARK:
 
@@ -88,7 +88,7 @@ GRASS_DARK:
 SET_GRASS_DARK:
 
 	move.b %d0, grass_color
-	move.l #PAL0_COLOR3, VDP_CTRL /* Tell VDP we want to change color 1 */
+	move.l #PAL0_COLOR2, VDP_CTRL /* Tell VDP we want to change color 1 */
 	clr.w %d0
 
 GRASS_DELAY1: 
@@ -109,7 +109,7 @@ LINE_LIGHT:
 	cmp.b line_color, %d0
 	jne SET_LINE_LIGHT   /* if not dark, set the color */
 	JMP GRASS_LIGHT
-	|move.l	(%sp)+, %d0   /* restore data register 0 */
+	move.l	(%sp)+, %d0   /* restore data register 0 */
 	rte
 
 SET_LINE_LIGHT:
@@ -137,7 +137,7 @@ GRASS_LIGHT:
 SET_GRASS_LIGHT:
 
 	move.b %d0, grass_color
-	move.l #PAL0_COLOR3, VDP_CTRL /* Tell VDP we want to change color 1 */
+	move.l #PAL0_COLOR2, VDP_CTRL /* Tell VDP we want to change color 1 */
 	clr.w %d0
 
 GRASS_DELAY2: 

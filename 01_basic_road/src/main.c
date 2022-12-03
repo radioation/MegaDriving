@@ -114,7 +114,7 @@ void update()
 	}
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 	//////////////////////////////////////////////////////////////
 	// http://www.extentofthejam.com/pseudo/
@@ -141,11 +141,11 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup background A
-	VDP_setPalette(PAL1, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL1, road_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
-	VDP_setPalette(PAL2, background.palette->data);
+	PAL_setPalette(PAL2, background_pal.data, CPU);
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += background.tileset->numTile;
 

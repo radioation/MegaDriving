@@ -59,7 +59,7 @@ fix16 segment_position = FIX16(0); // keep track of the segment position on scre
 fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
 s16 horizon_line = 223;							// keep track of where the horizon is
 
-void HIntHandler()
+ HINTERRUPT_CALLBACK HIntHandler()
 {
 	// set vertical scroll based on hill calculations
 	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);
@@ -179,7 +179,7 @@ void update()
 }
 
 
-int main(u16 hard)
+int main(bool hard)
 {
 	//////////////////////////////////////////////////////////////
 	// http://www.extentofthejam.com/pseudo/
@@ -205,11 +205,11 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, road_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
-	VDP_setPalette(PAL2, background.palette->data);
+	PAL_setPalette(PAL2, background_pal.data, CPU);
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += background.tileset->numTile;
 	

@@ -229,7 +229,7 @@ void update()
 	}
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 	//////////////////////////////////////////////////////////////
 	// http://www.extentofthejam.com/pseudo/
@@ -254,11 +254,11 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, road_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += road.tileset->numTile;
-	VDP_setPalette(PAL2, background.palette->data);
+	PAL_setPalette(PAL2, background_pal.data, CPU);
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += background.tileset->numTile;
 	
@@ -302,33 +302,33 @@ int main(u16 hard)
 			lastSet = temp;
 			if (temp == 0)
 			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0xFFFFFF));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(1, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(2, RGB24_TO_VDPCOLOR(0xFFFFFF));
+				PAL_setColor(3, RGB24_TO_VDPCOLOR(0x666666));
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x00CC00));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(5, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(6, RGB24_TO_VDPCOLOR(0x00CC00));
+				PAL_setColor(7, RGB24_TO_VDPCOLOR(0x008800));
 			}
 			else if (temp == 1)
 			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0xFFFFFF));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(1, RGB24_TO_VDPCOLOR(0xFFFFFF));
+				PAL_setColor(2, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(3, RGB24_TO_VDPCOLOR(0x666666));
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x00CC00));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(5, RGB24_TO_VDPCOLOR(0x00CC00));
+				PAL_setColor(6, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(7, RGB24_TO_VDPCOLOR(0x008800));
 			}
 			else
 			{
-				VDP_setPaletteColor(1, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(2, RGB24_TO_VDPCOLOR(0x666666));
-				VDP_setPaletteColor(3, RGB24_TO_VDPCOLOR(0xFFFFFF));
+				PAL_setColor(1, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(2, RGB24_TO_VDPCOLOR(0x666666));
+				PAL_setColor(3, RGB24_TO_VDPCOLOR(0xFFFFFF));
 
-				VDP_setPaletteColor(5, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(6, RGB24_TO_VDPCOLOR(0x008800));
-				VDP_setPaletteColor(7, RGB24_TO_VDPCOLOR(0x00CC00));
+				PAL_setColor(5, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(6, RGB24_TO_VDPCOLOR(0x008800));
+				PAL_setColor(7, RGB24_TO_VDPCOLOR(0x00CC00));
 			}
 			if (temp > 3)
 			{

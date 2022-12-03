@@ -10,20 +10,20 @@
 #define SCROLL_CENTER -96
 
 // keep track of the current line during Horizontal Interrupts
-u8 lineDisplay = 0;
+u16 lineDisplay = 0;
 
 // Horizontal Scrolling values
 s16 HscrollA[VERTICAL_REZ];
 // Vertical Scrolling values ( to simulate hills )
 s16 VscrollA[VERTICAL_REZ];
 
-void VIntHandler()
+static void VIntHandler()
 {
 	// Make sure HIntHander starts with line 0
 	lineDisplay = 0;
 }
 
-void HIntHandler()
+HINTERRUPT_CALLBACK HIntHandler()
 {
 	// Set vertical scrolling based on hill calculations
 	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);
@@ -119,7 +119,7 @@ void handleJoypad()
 	}
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 
 	//////////////////////////////////////////////////////////////
@@ -141,8 +141,8 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup background A
-	VDP_setPalette(PAL1, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL1, road_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 
 	//////////////////////////////////////////////////////////////
@@ -155,8 +155,9 @@ int main(u16 hard)
 		SYS_setHIntCallback(HIntHandler);
 		SYS_setVIntCallback(VIntHandler);
 	}
-	SYS_enableInts();
 
+
+	SYS_enableInts();
 	// Main loop
 	while (TRUE)
 	{

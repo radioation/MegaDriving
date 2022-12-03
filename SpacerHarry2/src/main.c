@@ -297,7 +297,7 @@ void update()
 
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 	horizonLine = 223 - ZMAP_LENGTH;
 	groundLineCount = fix32Sub(FIX32(223), horizonLine);
@@ -339,9 +339,9 @@ int main(u16 hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup scroll panes
-	VDP_setPalette(PAL0, ground.palette->data);
-	VDP_setPalette(PAL3, background.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL0, ground_pal.data, CPU);
+	PAL_setPalette(PAL3, background_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &ground, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 	ind += ground.tileset->numTile;
 	VDP_drawImageEx(BG_B, &background, TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
@@ -352,7 +352,7 @@ int main(u16 hard)
 	// Setup Car Sprites
 	SPR_init();
 	// SPR_initEx(900);
-	VDP_setPalette(PAL1, player.palette->data);
+	PAL_setPalette(PAL1, player_pal.data, CPU);
 	playerSprite = malloc(sizeof(struct CP_SPRITE));
 	playerSprite->position = FIX32(0);
 	playerSprite->segment_index = 0;
@@ -389,7 +389,7 @@ int main(u16 hard)
 																											 FALSE																										 // flip the sprite horizontally
 																											 ));
 
-	VDP_setPalette(PAL2, boss.palette->data);
+	PAL_setPalette(PAL2, boss_pal.data, CPU);
 	bossSprite = malloc(sizeof(struct CP_SPRITE));
 	bossSprite->position = FIX32(0);
 	bossSprite->segment_index = 0;

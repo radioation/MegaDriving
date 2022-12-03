@@ -49,7 +49,7 @@ void handleJoypad()
 	}
 }
 
-int main(u16 arg)
+int main(bool arg)
 {
 
 	//////////////////////////////////////////////////////////////
@@ -67,8 +67,8 @@ int main(u16 arg)
 
 	//////////////////////////////////////////////////////////////
 	// Setup background A
-	VDP_setPalette(PAL1, road.palette->data);
-	int ind = TILE_USERINDEX;
+	PAL_setPalette(PAL1, road_pal.data, CPU);
+	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 
 	VDP_drawText("Press A, B, or C to Curve", 15, 1);
