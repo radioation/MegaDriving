@@ -1,5 +1,8 @@
 # Mega Driving
 
+The code has been updated to compile with SGDK 1.80.   Earlier versions of SGDK will 
+not work.
+
 I've been teaching myself SGDK for fun.  This repository contains *experimental* code I've 
 written based on [Lou's Pseudo 3d Page](http://www.extentofthejam.com/pseudo/).  It's 
 provided here as an example of one possible way to implement pseudo 3d with SGDK.  I am in 
