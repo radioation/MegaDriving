@@ -59,7 +59,7 @@ fix16 segment_position = FIX16(0); // keep track of the segment position on scre
 fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
 s16 horizon_line = 223;							// keep track of where the horizon is
 
-void HIntHandler()
+ HINTERRUPT_CALLBACK HIntHandler()
 {
 	// set vertical scroll based on hill calculations
 	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);

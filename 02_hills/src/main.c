@@ -17,13 +17,14 @@ s16 HscrollA[VERTICAL_REZ];
 // Vertical Scrolling values ( to simulate hills )
 s16 VscrollA[VERTICAL_REZ];
 
-void VIntHandler()
+static void VIntHandler(void)
 {
 	// Make sure HIntHander starts with line 0
 	lineDisplay = 0;
+	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);
 }
 
-void HIntHandler()
+HINTERRUPT_CALLBACK HIntHandler()
 {
 	// Set vertical scrolling based on hill calculations
 	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);
@@ -157,15 +158,16 @@ int main(bool hard)
 	}
 	SYS_enableInts();
 
+
 	// Main loop
 	while (TRUE)
 	{
+		SYS_doVBlankProcess();
 		VDP_drawText("Press A, B, C or X", 15, 0);
 		// update
 		handleJoypad();
 
 		// do horizontal scrolling to center the background
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE);
-		SYS_doVBlankProcess();
 	}
 }
