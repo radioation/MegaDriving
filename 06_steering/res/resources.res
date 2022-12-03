@@ -11,3 +11,8 @@ SPRITE bush "sprites/bush0.png" 6 6 FAST 0 NONE TILE
 SPRITE rock "sprites/rock.png" 4 3 FAST 0 NONE TILE
 SPRITE pine "sprites/pine.png" 5 11 FAST 0 NONE TILE
 SPRITE sign "sprites/sign.png" 6 6 FAST 0 NONE TILE
+
+PALETTE background_pal "background/background.png" 
+PALETTE car_pal "sprites/car.png"
+PALETTE sign_pal "sprites/sign.png" 
+PALETTE bush_pal "sprites/bush0.png" 
