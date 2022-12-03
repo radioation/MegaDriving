@@ -10,14 +10,14 @@
 #define SCROLL_CENTER -96
 
 // keep track of the current line during Horizontal Interrupts
-u8 lineDisplay = 0;
+u16 lineDisplay = 0;
 
 // Horizontal Scrolling values
 s16 HscrollA[VERTICAL_REZ];
 // Vertical Scrolling values ( to simulate hills )
 s16 VscrollA[VERTICAL_REZ];
 
-static void VIntHandler(void)
+static void VIntHandler()
 {
 	// Make sure HIntHander starts with line 0
 	lineDisplay = 0;
@@ -155,15 +155,15 @@ int main(bool hard)
 		SYS_setHIntCallback(HIntHandler);
 		SYS_setVIntCallback(VIntHandler);
 	}
+
+
 	SYS_enableInts();
-
-
 	// Main loop
 	while (TRUE)
 	{
 		VDP_drawText("Press A, B, C or X", 15, 0);
 		// update
-		//handleJoypad();
+		handleJoypad();
 
 		// do horizontal scrolling to center the background
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE);
