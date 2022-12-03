@@ -21,7 +21,6 @@ static void VIntHandler(void)
 {
 	// Make sure HIntHander starts with line 0
 	lineDisplay = 0;
-	VDP_setVerticalScroll(BG_A, VscrollA[lineDisplay]);
 }
 
 HINTERRUPT_CALLBACK HIntHandler()
@@ -162,12 +161,12 @@ int main(bool hard)
 	// Main loop
 	while (TRUE)
 	{
-		SYS_doVBlankProcess();
 		VDP_drawText("Press A, B, C or X", 15, 0);
 		// update
-		handleJoypad();
+		//handleJoypad();
 
 		// do horizontal scrolling to center the background
 		VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE);
+		SYS_doVBlankProcess();
 	}
 }
