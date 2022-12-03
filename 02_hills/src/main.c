@@ -141,7 +141,7 @@ int main(bool hard)
 
 	//////////////////////////////////////////////////////////////
 	// Setup background A
-	PAL_setPalette(PAL1, road.pal.data, CPU);
+	PAL_setPalette(PAL1, road_pal.data, CPU);
 	int ind = TILE_USER_INDEX;
 	VDP_drawImageEx(BG_A, &road, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
 
