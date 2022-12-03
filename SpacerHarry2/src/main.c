@@ -297,7 +297,7 @@ void update()
 
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 	horizonLine = 223 - ZMAP_LENGTH;
 	groundLineCount = fix32Sub(FIX32(223), horizonLine);

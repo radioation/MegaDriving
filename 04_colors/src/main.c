@@ -229,7 +229,7 @@ void update()
 	}
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 	//////////////////////////////////////////////////////////////
 	// http://www.extentofthejam.com/pseudo/

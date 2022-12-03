@@ -119,7 +119,7 @@ void handleJoypad()
 	}
 }
 
-int main(u16 hard)
+int main(bool hard)
 {
 
 	//////////////////////////////////////////////////////////////
