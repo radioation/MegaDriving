@@ -1,4 +1,7 @@
 # Mega Driving
+The code has been updated to compile with SGDK 1.80.   Earlier versions of SGDK will 
+likely not work.
+
 I've been teaching myself SGDK for fun.  This repository contains *experimental* code I've 
 written for fake 3D roads and other Pseudo3D effects.
 
