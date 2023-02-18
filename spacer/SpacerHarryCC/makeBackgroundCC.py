@@ -40,9 +40,8 @@ end = 160  # up
 lowZ = worldY/ (start - height/2)
 highZ = worldY/ (end - height/2)
 
-tiles = 26 
+tiles = 27 
 tileZ = ( highZ - lowZ ) / tiles
-#print( "tileZ: ", tileZ )
 
 lastZ = lowZ
 tileYs = []
@@ -53,19 +52,15 @@ for y in range( start, end, 1 ):
   if z - lastZ > tileZ:
     # use which ever was closer.
     stepBackZ = worldY/ (y-1 - height/2)  
-    print( stepBackZ - lastZ, z - lastZ )
-    if stepBackZ - lastZ  > z - lastZ:
-      #print("use current")
+    if stepBackZ - lastZ  >= z - lastZ:
       tileYs.append( height - y  )  # subtract from height to get back into pixel coords
     else:
-      #print("use stepback")
       tileYs.append(height - y-1 )
     lastZ += tileZ 
   if z - lastZ == tileZ:
     tileYs.append(  y )
 
 
-  #print( y, z, msg)
 
 currStart = start
 for y in tileYs:
@@ -74,42 +69,66 @@ for y in tileYs:
 
 # draw from bottom up
 currY = height - 1
+# Tile width variables
 bottomStripWidth = 48
 topStripWidth = 1
 widthDelta = (bottomStripWidth - topStripWidth) / (end - start )
 currWidth = bottomStripWidth
+
+# tile depth variables
+tiles2 = tiles * 4 
+tileZ2 = ( highZ - lowZ ) / tiles2
+lastZ = lowZ
+# tile color starting indicies
+color1 = 1
+color2 = 5
 for endY in tileYs:
-  print(currY, endY )
   # how many X iterations?
   xCount = math.ceil(width/(2* currWidth)) +1
-  print( xCount )
+  colorOffset = 0
   for y in range ( currY, endY, -1 ) :
+    # color choice now depends on a different distance
+    if  currY - endY > 4 :
+      # use all 4 possible color offset
+      z = worldY/ ( (height -1 )- y  - height/2)
+      if z - lastZ > tileZ2:
+        z2 = worldY/ ( (height )- y  - height/2)
+        if z2 >= z :
+          colorOffset+=1
+          lastZ += tileZ2
+        #if ( colorOffset > 3 ) :
+        #  colorOffset = 3;
+    elif  currY - endY > 2 :
+      # use 3 of 4 possible color offset
+      if y < currY-1:
+        colorOffset += 1
+    elif  currY - endY > 1 :
+      # use 2 of 4 possible color offset
+      colorOffset = 0
+
     # spread out from center.
     p1 = int(width/2 -1)
     p2 = int(p1 - currWidth)
     for x in range( 0, xCount ) :
-      #print(currWidth, widthDelta, " pts: ",  p2, y );
-      dImage.line( [(p1,y) , (p2,y)], fill =  3 if x%2 == 0 else 7 )
+      dImage.line( [(p1,y) , (p2,y)], fill =  color1 + colorOffset if x%2 == 0 else color2 + colorOffset )
       # and opposites
-      dImage.line( [(511-p1,y) , (512-p2,y)], fill =  7 if x%2 == 0 else 3 )
+      dImage.line( [(511-p1,y) , (512-p2,y)], fill =  color2 + colorOffset if x%2 == 0 else color1 + colorOffset )
       p1 = p2 -1
       p2 = p1 - currWidth
 
     currWidth -= widthDelta
+
+  # handle next tile
   currY = endY
+  lastZ += tileZ2  # next tile start
+  if color1 == 1:
+    color1 = 5
+    color2 = 1
+  else:
+    color1 = 1
+    color2 = 5
 
-
-  # go right or mirror? startXRight = width/2 
-
-
-#for x in range( 0, width,2 ):
-#  shape = [ (x, topRow), ( bottomLeftStart + x*bottomStripWidth, height - 1 ), (bottomLeftStart +  x*bottomStripWidth + bottomStripWidth, height - 1), (x,topRow) ]
-#  dImage.polygon( shape, fill = (183,182,80) , outline=(183,182,80))
-#
-#
-#
-#shape = [(0,0), (0, 50), ( 50, 50 ), ( 50, 0 ) ]
-#dImage.polygon( shape, fill = 1, outline = 1)
+# save a starter image for the project
 img.save("starter.png")
 
 
