@@ -58,17 +58,12 @@ int main(bool in)
   int ind = TILE_USER_INDEX;
   VDP_drawImageEx(BG_B, &bg_b, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, ind), 0, 0, FALSE, TRUE);
   u16 paletteOffset = 0;
-  u16 ticks = 0;
   while(TRUE)
   {
     PAL_setColors(1, palette + paletteOffset, 8, DMA_QUEUE);
-    ++ticks;
-    if( ticks == 2 ) {
-      ++paletteOffset;
-      ticks = 0;
-      if( paletteOffset > 7 ) {
-        paletteOffset = 0;
-      }
+    ++paletteOffset;
+    if( paletteOffset > 7 ) {
+      paletteOffset = 0;
     }
     VDP_setHorizontalScrollLine(BG_B, 0, hScrollB, VERTICAL_REZ, DMA_QUEUE);
 
