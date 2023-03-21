@@ -69,8 +69,8 @@ LINE_DARK:
 	cmp.b lineColor, %d0
 	jne SET_LINE_DARK   /* if not dark, set the color */
 	jmp GRASS_DARK
-	|move.l	(%sp)+, %d0   /* restore data register 0 */
-	|rte
+	move.l	(%sp)+, %d0   /* restore data register 0 */
+	rte
 
 SET_LINE_DARK:
 
@@ -119,7 +119,7 @@ LINE_LIGHT:
 	cmp.b lineColor, %d0
 	jne SET_LINE_LIGHT   /* if not dark, set the color */
 	JMP GRASS_LIGHT
-	|move.l	(%sp)+, %d0   /* restore data register 0 */
+	move.l	(%sp)+, %d0   /* restore data register 0 */
 	rte
 
 SET_LINE_LIGHT:
