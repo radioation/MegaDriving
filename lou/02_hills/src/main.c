@@ -50,7 +50,7 @@ void CreateHills(fix32 dy1, fix32 dy2, u16 segmentLine)
 	// iterate over every line in the road, closest to farthest Z
 	for (u16 bgY = 223; bgY > 115; bgY--)
 	{
-		s16 cdp = fix32ToInt(current_drawing_pos); // get current drawing position as an int
+		s16 cdp = FF32_toInt(current_drawing_pos); // get current drawing position as an int
 
 		if (bgY == segmentLine) // simulate two segments
 		{
@@ -63,11 +63,11 @@ void CreateHills(fix32 dy1, fix32 dy2, u16 segmentLine)
 			horizon_line = cdp;				 // update horizon line
 		}
 
-		ddy = fix32Add(dy, ddy);
-		fix32 delta_drawing_pos = fix32Add(FIX32(1), ddy); // increment drawing position
+		ddy = dy + ddy;
+		fix32 delta_drawing_pos = FIX32(1) + ddy; // increment drawing position
 
-		fix32 next_drawing_pos = fix32Sub(current_drawing_pos, delta_drawing_pos); // figure out next drawing position
-		s16 ndp = fix32ToInt(next_drawing_pos);
+		fix32 next_drawing_pos = current_drawing_pos - delta_drawing_pos; // figure out next drawing position
+		s16 ndp = FF32_toInt(next_drawing_pos);
 		KLog_S2(" cdp: ", cdp, " ndp: ", ndp);
 		if (cdp - ndp > 1) // need to set Vertical scrolling value if the next drawing position is farther than one line.
 		{

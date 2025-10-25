@@ -103,8 +103,8 @@ void createTrees()
 		}
 		trees[i].update_y = 1;
 		trees[i].sprite = SPR_addSprite(&tree,
-																		fix32ToInt(trees[i].pos_x),
-																		fix32ToInt(trees[i].pos_y),
+																		FF32_toInt(trees[i].pos_x),
+																		FF32_toInt(trees[i].pos_y),
 																		TILE_ATTR(PAL3, 0, FALSE, FALSE));
 		SPR_setFrame(trees[i].sprite, 4);
 		SPR_setDepth(trees[i].sprite, 3);
@@ -265,19 +265,19 @@ void update()
 		//  For each Z, make one of the bits represent the shade
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
-		u8 zmapval = (u8)fix32ToInt(fix32Sub(segment_position, z));
+		u8 zmapval = (u8)FF32_toInt(fix32Sub(segment_position, z));
 
 		ddy = fix32Add(dy, ddy);
-		s16 cdp = fix32ToInt(current_drawing_pos);				 // current vertical drawing position
+		s16 cdp = FF32_toInt(current_drawing_pos);				 // current vertical drawing position
 		fix32 delta_drawing_pos = fix32Add(FIX32(1), ddy); // increment drawing position
 		fix32 next_drawing_pos = fix32Sub(current_drawing_pos, delta_drawing_pos);
-		s16 ndp = fix32ToInt(next_drawing_pos); // figure out next drawing position
+		s16 ndp = FF32_toInt(next_drawing_pos); // figure out next drawing position
 		// repeat line if theres a gap greater than 1
 		for (; cdp > ndp; --cdp) //
 		{
 			if (cdp <= horizon_line) // if current drawing position is above the horizon
 			{
-				HscrollA[cdp] = SCROLL_CENTER + fix32ToInt(current_x); // this_line.x = current x | using horizontal scrolling to fake curves
+				HscrollA[cdp] = SCROLL_CENTER + FF32_toInt(current_x); // this_line.x = current x | using horizontal scrolling to fake curves
 				VscrollA[cdp] = bgY - cdp;														 // set the vertical scroll amount for the current drawing position
 				horizon_line = cdp;																		 // update horizon line
 
@@ -324,13 +324,13 @@ void update()
 		background_position = fix32Sub(background_position, segments[bottom_segments_index].bgdx);
 		for (u16 y = 0; y < 160; ++y)
 		{
-			HscrollB[y] = fix32ToInt(background_position);
+			HscrollB[y] = FF32_toInt(background_position);
 		}
 	}
 
 	// Move segments
 	segment_position = fix32Add(segment_position, speed);
-	if (fix32ToInt(segment_position) < 0)
+	if (FF32_toInt(segment_position) < 0)
 	{
 		// bottom_segment = segment
 		bottom_segments_index = segments_index;
@@ -354,8 +354,8 @@ int main(bool hard)
 	// this gets me 0.65 nearest and 25.0 farthest
 	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = fix32Div(FIX32(-75), fix32Sub(FIX32(i), FIX32(112)));
-		scale[i] = fix32Div(FIX32(1), zmap[i]);
+		zmap[i] = FF32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(112)));
+		scale[i] = FF32_div(FIX32(1), zmap[i]);
 		KLog_F3("i: ", FIX32(i), " z: ", zmap[i], " s: ", scale[i]);
 	}
 
@@ -414,8 +414,8 @@ int main(bool hard)
 	carSprite.pos_x = FIX32(116.0);
 	carSprite.pos_y = FIX32(160.0);
 	carSprite.sprite = SPR_addSprite(&car,												// Sprite defined in resources
-																	 fix32ToInt(carSprite.pos_x), // starting X position
-																	 fix32ToInt(carSprite.pos_y), // starting Y position
+																	 FF32_toInt(carSprite.pos_x), // starting X position
+																	 FF32_toInt(carSprite.pos_y), // starting Y position
 																	 TILE_ATTR(PAL2,							// specify palette
 																						 1,									// Tile priority ( with background)
 																						 FALSE,							// flip the sprite vertically?
@@ -459,13 +459,13 @@ int main(bool hard)
 		for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
 		{
 			// update z-order  for trees
-			SPR_setDepth(trees[i].sprite, 224 - fix32ToInt(trees[i].pos_y));
+			SPR_setDepth(trees[i].sprite, 224 - FF32_toInt(trees[i].pos_y));
 			// Draw tree at new position
-			SPR_setPosition(trees[i].sprite, fix32ToInt(trees[i].pos_x), fix32ToInt(trees[i].pos_y));
+			SPR_setPosition(trees[i].sprite, FF32_toInt(trees[i].pos_x), fix32ToInt(trees[i].pos_y));
 		}
 
 		// Draw car at now position
-		SPR_setPosition(carSprite.sprite, fix32ToInt(carSprite.pos_x), fix32ToInt(carSprite.pos_y));
+		SPR_setPosition(carSprite.sprite, FF32_toInt(carSprite.pos_x), fix32ToInt(carSprite.pos_y));
 
 		SPR_update();
 
@@ -475,8 +475,8 @@ int main(bool hard)
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
 
 		fix32 h = FIX32(horizon_line - 113);
-		h = fix32Div(h, FIX32(6));
-		VDP_setVerticalScroll(BG_B, fix32ToInt(h));
+		h = FF32_div(h, FIX32(6));
+		VDP_setVerticalScroll(BG_B, FF32_toInt(h));
 
 		SYS_doVBlankProcess();
 	}
