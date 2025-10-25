@@ -20,11 +20,11 @@ void CreateCurve(fix32 dx)
 	// start from the bottom of the screen and move up.
 	for (u16 bgY = 223; bgY >= 116; bgY--)
 	{
-		ddx = fix32Add(dx, ddx);
-		current_x = fix32Add(current_x, ddx);
+		ddx = dx + ddx;
+		current_x = current_x + ddx;
 
 		// store the current x in HscrollA to shift the road in the main loop
-		HscrollA[bgY] = SCROLL_CENTER + fix32ToInt(current_x);
+		HscrollA[bgY] = SCROLL_CENTER + F32_toInt(current_x);
 	}
 }
 
