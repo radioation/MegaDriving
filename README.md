@@ -3,7 +3,7 @@ The code is being updated to compile with SGDK 2.11. Earlier versions of SGDK wi
 likely not work.
 
 ```bash
-find . -name main.c -exec sed -i 's/fix16Div/FF16_div' --color {} +
+find . -name main.c -exec sed -i 's/fix16Div/FF16_div'  {} +
 find . -name main.c -exec sed -i 's/fix32ToInt/FF32_toInt/'  {} +
 find . -name main.c -exec sed -i 's/fix16ToInt/FF16_toInt/'  {} +
 ```
