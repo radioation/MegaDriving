@@ -79,26 +79,24 @@ void update()
 			dx = segments[segments_index].dx;
 		}
 
-		// ddx += dx
-		ddx = fix16Add(ddx, dx);
-		// current_x += ddx
-		current_x = fix16Add(current_x, ddx);
+		ddx += dx;
+		current_x += ddx;
 
 		// this_line.x = current_x
 		// we'll use horizontal scrolling of BG_A to fake curves.
-		HscrollA[223 - y] = SCROLL_CENTER + fix16ToInt(current_x);
+		HscrollA[223 - y] = SCROLL_CENTER + FF16_toInt(current_x);
 	}
 
 	// scroll the background
-	background_position = fix16Add(background_position, segments[bottom_segments_index].bgdx);
+	background_position = background_position + segments[bottom_segments_index].bgdx;
 	for (u16 y = 0; y < 120; ++y)
 	{
-		HscrollB[y] = fix16ToInt(background_position);
+		HscrollB[y] = FF16_toInt(background_position);
 	}
 
 	// Move segments
-	segment_position = fix16Add(segment_position, speed);
-	if (fix16ToInt(segment_position) < 0) // 0 is nearest
+	segment_position = segment_position + speed;
+	if (FF16_toInt(segment_position) < 0) // 0 is nearest
 	{
 		// bottom_segment = segment
 		bottom_segments_index = segments_index;
@@ -121,7 +119,7 @@ int main(bool hard)
 	// Z = Y_world / (Y_screen - (height_screen / 2))
 	for (u16 i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = fix16Div(FIX16(-75), fix16Sub(FIX16(i), FIX16(112)));
+		zmap[i] = F16_div(FIX16(-75), FIX16(i) - FIX16(112));
 		KLog_f1("FIX16(", zmap[i]);
 	}
 
