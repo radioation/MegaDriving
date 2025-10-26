@@ -917,13 +917,13 @@ int main(bool hard)
 			// update z-order  for roadsideObjs
 			SPR_setDepth(roadsideObjs[i].sprite, 224 - F32_toInt(roadsideObjs[i].posY) - roadsideObjs[i].offsetY);
 			// Draw object at new position
-			SPR_setPosition(roadsideObjs[i].sprite, F32_toInt(roadsideObjs[i].posX), fix32ToInt(roadsideObjs[i].posY));
+			SPR_setPosition(roadsideObjs[i].sprite, F32_toInt(roadsideObjs[i].posX), F32_toInt(roadsideObjs[i].posY));
 		}
 
 		// Draw car at now position
-		SPR_setPosition(playerSprite->sprite, F32_toInt(playerSprite->posX), fix32ToInt(playerSprite->posY));
-		SPR_setPosition(redCarSprite->sprite, F32_toInt(redCarSprite->posX), fix32ToInt(redCarSprite->posY));
-		SPR_setPosition(greenCarSprite->sprite, F32_toInt(greenCarSprite->posX), fix32ToInt(greenCarSprite->posY));
+		SPR_setPosition(playerSprite->sprite, F32_toInt(playerSprite->posX), F32_toInt(playerSprite->posY));
+		SPR_setPosition(redCarSprite->sprite, F32_toInt(redCarSprite->posX), F32_toInt(redCarSprite->posY));
+		SPR_setPosition(greenCarSprite->sprite, F32_toInt(greenCarSprite->posX), F32_toInt(greenCarSprite->posY));
 
 		SPR_update();
 

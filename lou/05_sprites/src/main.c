@@ -116,7 +116,7 @@ void updateTrees()
 	for (u16 i = 0; i < NUMBER_OF_TREES; ++i)
 	{
 		// figure out z position
-		trees[i].zpos = fix32Add(trees[i].zpos, speed);
+		trees[i].zpos = trees[i].zpos + speed;
 		if (trees[i].zpos < FIX32(-0.0))
 		{
 			trees[i].zpos = FIX32(12.5);
@@ -168,15 +168,15 @@ static void joypadHandler(u16 joypadId, u16 changed, u16 state)
 void updateCar()
 {
 	if( accelerate == 1 ) {
-		speed = fix32Sub( speed, FIX32(0.005));
+		speed = speed - FIX32(0.005);
 	} 
 
 	if( deccelerate == 1 ) {
-		speed = fix32Add( speed, FIX32(0.005));
+		speed =  speed + FIX32(0.005);
 	} 
 	
 	if( accelerate == 0 && deccelerate == 0 ) {
-		speed = fix32Add( speed, FIX32(0.003));
+		speed = speed + FIX32(0.003);
 		if( speed > FIX32(0.0)){
 			speed = FIX32(0);
 		}
@@ -255,22 +255,20 @@ void update()
 			dy = segments[segments_index].dy;
 		}
 
-		// ddx += dx
-		ddx = fix32Add(ddx, dx);
-		// current_x += ddx
-		current_x = fix32Add(current_x, ddx);
+		ddx += dx;
+		current_x += ddx;
 
 		//////////////////////////////////////////////////////////////////////
 		// Coloring
 		//  For each Z, make one of the bits represent the shade
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
-		u8 zmapval = (u8)F32_toInt(fix32Sub(segment_position, z));
+		u8 zmapval = (u8)F32_toInt(segment_position - z);
 
-		ddy = fix32Add(dy, ddy);
+		ddy += dy;
 		s16 cdp = F32_toInt(current_drawing_pos);				 // current vertical drawing position
-		fix32 delta_drawing_pos = fix32Add(FIX32(1), ddy); // increment drawing position
-		fix32 next_drawing_pos = fix32Sub(current_drawing_pos, delta_drawing_pos);
+		fix32 delta_drawing_pos = FIX32(1) + ddy; // increment drawing position
+		fix32 next_drawing_pos = current_drawing_pos - delta_drawing_pos;
 		s16 ndp = F32_toInt(next_drawing_pos); // figure out next drawing position
 		// repeat line if theres a gap greater than 1
 		for (; cdp > ndp; --cdp) //
@@ -294,14 +292,14 @@ void update()
 				// check if z is close.
 				if (z > trees[i].zpos)
 				{
-					trees[i].pos_y = fix32Sub(current_drawing_pos, FIX32(75));
+					trees[i].pos_y = current_drawing_pos - FIX32(75);
 					if (i % 2 == 0)
 					{
-						trees[i].pos_x = fix32Add(fix32Add(FIX32(160), current_x), roadOffsetLeft[bgY]);
+						trees[i].pos_x = FIX32(160) + current_x + roadOffsetLeft[bgY];
 					}
 					else
 					{
-						trees[i].pos_x = fix32Add(fix32Add(FIX32(160), current_x), roadOffsetRight[bgY]);
+						trees[i].pos_x = FIX32(160) + current_x + roadOffsetRight[bgY];
 					}
 					trees[i].update_y = 0;
 				}
@@ -321,7 +319,7 @@ void update()
 	if (speed != FIX32(0.0))
 	{
 
-		background_position = fix32Sub(background_position, segments[bottom_segments_index].bgdx);
+		background_position = background_position - segments[bottom_segments_index].bgdx;
 		for (u16 y = 0; y < 160; ++y)
 		{
 			HscrollB[y] = F32_toInt(background_position);
@@ -329,7 +327,7 @@ void update()
 	}
 
 	// Move segments
-	segment_position = fix32Add(segment_position, speed);
+	segment_position = segment_position + speed;
 	if (F32_toInt(segment_position) < 0)
 	{
 		// bottom_segment = segment
@@ -354,7 +352,7 @@ int main(bool hard)
 	// this gets me 0.65 nearest and 25.0 farthest
 	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(112)));
+		zmap[i] = F32_div(FIX32(-75), FIX32(i) - FIX32(112)); 
 		scale[i] = F32_div(FIX32(1), zmap[i]);
 		KLog_F3("i: ", FIX32(i), " z: ", zmap[i], " s: ", scale[i]);
 	}
@@ -376,9 +374,9 @@ int main(bool hard)
 	for (int i = 224 - ZMAP_LENGTH; i < 224; i++)
 	{
 		roadOffsetRight[i] = rightFromCenter;
-		rightFromCenter = fix32Add(rightFromCenter, step);
+		rightFromCenter = rightFromCenter + step;
 		roadOffsetLeft[i] = leftFromCenter;
-		leftFromCenter = fix32Sub(leftFromCenter, step);
+		leftFromCenter = leftFromCenter - step;
 		KLog_F2(" i: ", FIX32(i), "  road offset: ", roadOffsetRight[i]);
 	}
 
@@ -461,11 +459,11 @@ int main(bool hard)
 			// update z-order  for trees
 			SPR_setDepth(trees[i].sprite, 224 - F32_toInt(trees[i].pos_y));
 			// Draw tree at new position
-			SPR_setPosition(trees[i].sprite, F32_toInt(trees[i].pos_x), fix32ToInt(trees[i].pos_y));
+			SPR_setPosition(trees[i].sprite, F32_toInt(trees[i].pos_x), F32_toInt(trees[i].pos_y));
 		}
 
 		// Draw car at now position
-		SPR_setPosition(carSprite.sprite, F32_toInt(carSprite.pos_x), fix32ToInt(carSprite.pos_y));
+		SPR_setPosition(carSprite.sprite, F32_toInt(carSprite.pos_x), F32_toInt(carSprite.pos_y));
 
 		SPR_update();
 
