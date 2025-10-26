@@ -161,10 +161,8 @@ void update()
 			dy = segments[segments_index].dy;
 		}
 
-		// ddx += dx
-		ddx = fix16Add(ddx, dx);
-		// current_x += ddx
-		current_x = fix16Add(current_x, ddx);
+		ddx += dx;
+		current_x += ddx;
 
 
 		//////////////////////////////////////////////////////////////////////
@@ -172,12 +170,12 @@ void update()
 		//  For each Z, make one of the bits represent the shade
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
-		u8 zmapval = (u8)F16_toInt(fix16Sub(segment_position, z));
+		u8 zmapval = (u8)F16_toInt(segment_position - z);
 
-		ddy = fix32Add(dy, ddy);
+		ddy += dy;
 		s16 cdp = F32_toInt(current_drawing_pos);				 // current vertical drawing position
-		fix32 delta_drawing_pos = fix32Add(FIX32(1), ddy); // increment drawing position
-		fix32 next_drawing_pos = fix32Sub(current_drawing_pos, delta_drawing_pos);
+		fix32 delta_drawing_pos = FIX32(1) + ddy; // increment drawing position
+		fix32 next_drawing_pos = current_drawing_pos - delta_drawing_pos;
 		s16 ndp = F32_toInt(next_drawing_pos); // figure out next drawing position
 		// repeat line if theres a gap greater than 1
 		for (; cdp > ndp; --cdp) //
@@ -204,7 +202,7 @@ void update()
 
 
 	// scroll the background
-	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
+	background_position = background_position - segments[bottom_segments_index].bgdx;
 	for (u16 y = 0; y < 160; ++y)
 	{
 		HscrollB[y] = F16_toInt(background_position);
@@ -212,7 +210,7 @@ void update()
 
 
 	// Move segments
-	segment_position = fix16Add(segment_position, speed);
+	segment_position = segment_position + speed;
 	if (F16_toInt(segment_position) < 0)
 	{
 		// bottom_segment = segment
@@ -236,7 +234,7 @@ int main(bool hard)
 	// Z = Y_world / (Y_screen - (height_screen / 2))
 	for (u16 i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = F16_div(FIX16(-75), fix16Sub(FIX16(i), FIX16(112)));
+		zmap[i] = F16_div(FIX16(-75), FIX16(i) - FIX16(112));
 		KLog_f1("FIX16(", zmap[i]);
 	}
 
