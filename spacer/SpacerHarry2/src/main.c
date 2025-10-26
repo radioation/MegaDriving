@@ -149,11 +149,11 @@ void updatePlayer()
 	if( playerYDir != 0 ) {
 		// get the horizon line
 		// find step   h = mx + b  :  m happens to be (-1/2)
-		fix32 h = b - fix32Div(    playerSprite->posY, FIX32(3.0) );
+		fix32 h = b - F32_div(    playerSprite->posY, FIX32(3.0) );
 		horizonLine = F32_toInt( h  );
 		// ground line steps
 		groundLineCount = fix32Sub( FIX32(223), h );
-		groundLineStep = fix32Div( fullGroundLineCount, groundLineCount);
+		groundLineStep = F32_div( fullGroundLineCount, groundLineCount);
 	}
 }
 
@@ -301,12 +301,12 @@ int main(bool hard)
 {
 	horizonLine = 223 - ZMAP_LENGTH;
 	groundLineCount = fix32Sub(FIX32(223), horizonLine);
-	groundLineStep = fix32Div(fullGroundLineCount, fullGroundLineCount);
+	groundLineStep = F32_div(fullGroundLineCount, fullGroundLineCount);
 	//////////////////////////////////////////////////////////////
 	// precalculate some stuff
-	fix32 step1 = fix32Div(FIX32(2), FIX32(ZMAP_LENGTH)); // divide bottom scroll increment by the height of the ground graphic.
-	fix32 step2 = fix32Div(FIX32(4), FIX32(ZMAP_LENGTH));
-	fix32 step3 = fix32Div(FIX32(8), FIX32(ZMAP_LENGTH));
+	fix32 step1 = F32_div(FIX32(2), FIX32(ZMAP_LENGTH)); // divide bottom scroll increment by the height of the ground graphic.
+	fix32 step2 = F32_div(FIX32(4), FIX32(ZMAP_LENGTH));
+	fix32 step3 = F32_div(FIX32(8), FIX32(ZMAP_LENGTH));
 	fix32 currentXDelta1 = FIX32(0);
 	fix32 currentXDelta2 = FIX32(0);
 	fix32 currentXDelta3 = FIX32(0);
@@ -314,7 +314,7 @@ int main(bool hard)
 	{
 		// http://www.extentofthejam.com/pseudo/
 		// Z = Y_world / (Y_screen - (height_screen / 2))
-		zmap[i] = fix32Div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
+		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
 		hScrollIncrement1[i] = currentXDelta1;
 		currentXDelta1 = fix32Add(currentXDelta1, step1);
 		hScrollIncrement2[i] = currentXDelta2;

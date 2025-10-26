@@ -5,6 +5,7 @@ have not yet been fixed.
 Once updated, earlier versions of SGDK will likely not compile.
 
 ```bash
+find . -name main.c -exec sed -i 's/fix32Div/F32_div/g'  {} +
 find . -name main.c -exec sed -i 's/fix16Div/F16_div/g'  {} +
 find . -name main.c -exec sed -i 's/fix32ToInt/F32_toInt/g'  {} +
 find . -name main.c -exec sed -i 's/fix16ToInt/F16_toInt/g'  {} +

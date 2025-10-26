@@ -90,7 +90,7 @@ void updatePlayer()
 	// player position affects H/Y
 	if (playerXDir < 0)
 	{
-		playerSprite->posX = fix32Sub(playerSprite->posX, FIX32(2));
+		playerSprite->posX = playerSprite->posX - FIX32(2);
 		if (playerSprite->posX < FIX32(playerSprite->offsetX))
 		{
 			playerSprite->posX = FIX32(playerSprite->offsetX);
@@ -98,7 +98,7 @@ void updatePlayer()
 	}
 	else if (playerXDir > 0)
 	{
-		playerSprite->posX = fix32Add(playerSprite->posX, FIX32(2));
+		playerSprite->posX = playerSprite->posX + FIX32(2);
 		if (playerSprite->posX > FIX32(292))
 		{
 			playerSprite->posX = FIX32(292);
@@ -115,7 +115,7 @@ void updatePlayer()
 void update()
 {
 	// COLORS ///////////////////////////////////////////////////////
-	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
+	colorCyclePosition = colorCyclePosition - playerSprite->speed;
 	if (F32_toInt(colorCyclePosition) < 0)
 	{
 		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
@@ -124,7 +124,7 @@ void update()
 	horizonLine = 223 - ZMAP_LENGTH;
 	for (u16 i = 223, j = horizonLine; i > 223 - ZMAP_LENGTH; --i, ++j)
 	{
-		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[i-ZMAP_LENGTH]);
+		fix32 tmpz = colorCyclePosition - zmap[i-ZMAP_LENGTH];
 		u16 zcolor = (u16)F32_toInt(tmpz << 2); // >> 1);
 		colors[j] = zcolor & 1;
 	}
@@ -134,7 +134,7 @@ void update()
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement3[j]);
+			workScrollA[i] = workScrollA[i] + hScrollIncrement3[j];
 			HscrollA[i] = F32_toInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps += 8;
@@ -144,7 +144,7 @@ void update()
 
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement2[j]);
+			workScrollA[i] = workScrollA[i] + hScrollIncrement2[j];
 			HscrollA[i] = F32_toInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps += 4;
@@ -154,7 +154,7 @@ void update()
 
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Add(workScrollA[i], hScrollIncrement1[j]);
+			workScrollA[i] = workScrollA[i] + hScrollIncrement1[j];
 			HscrollA[i] = F32_toInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps += 2;
@@ -163,7 +163,7 @@ void update()
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement3[j]);
+			workScrollA[i] = workScrollA[i] - hScrollIncrement3[j];
 			HscrollA[i] = F32_toInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps -= 8;
@@ -172,7 +172,7 @@ void update()
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement2[j]);
+			workScrollA[i] = workScrollA[i] - hScrollIncrement2[j];
 			HscrollA[i] = F32_toInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps -= 4;
@@ -181,7 +181,7 @@ void update()
 	{
 		for (int i = 223, j = ZMAP_LENGTH - 1; i > 223 - ZMAP_LENGTH; --i, --j)
 		{
-			workScrollA[i] = fix32Sub(workScrollA[i], hScrollIncrement1[j]);
+			workScrollA[i] = workScrollA[i] - hScrollIncrement1[j];
 			HscrollA[i] = F32_toInt(workScrollA[i]) + SCROLL_CENTER;
 		}
 		scrollSteps -= 2;
@@ -199,9 +199,9 @@ int main(bool hard)
 
 	//////////////////////////////////////////////////////////////
 	// precalculate some stuff
-	fix32 step1 = fix32Div(FIX32(2), FIX32(ZMAP_LENGTH)); // divide bottom scroll increment by the height of the ground graphic.
-	fix32 step2 = fix32Div(FIX32(4), FIX32(ZMAP_LENGTH));
-	fix32 step3 = fix32Div(FIX32(8), FIX32(ZMAP_LENGTH));
+	fix32 step1 = F32_div(FIX32(2), FIX32(ZMAP_LENGTH)); // divide bottom scroll increment by the height of the ground graphic.
+	fix32 step2 = F32_div(FIX32(4), FIX32(ZMAP_LENGTH));
+	fix32 step3 = F32_div(FIX32(8), FIX32(ZMAP_LENGTH));
 	fix32 currentXDelta1 = FIX32(0);
 	fix32 currentXDelta2 = FIX32(0);
 	fix32 currentXDelta3 = FIX32(0);
@@ -209,13 +209,13 @@ int main(bool hard)
 	{
 		// http://www.extentofthejam.com/pseudo/
 		// Z = Y_world / (Y_screen - (height_screen / 2))
-		zmap[i] = fix32Div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
+		zmap[i] = F32_div(FIX32(-75), FIX32(i) - FIX32(113));
 		hScrollIncrement1[i] = currentXDelta1;
-		currentXDelta1 = fix32Add(currentXDelta1, step1);
+		currentXDelta1 = currentXDelta1 + step1;
 		hScrollIncrement2[i] = currentXDelta2;
-		currentXDelta2 = fix32Add(currentXDelta2, step2);
+		currentXDelta2 = currentXDelta2 + step2;
 		hScrollIncrement3[i] = currentXDelta3;
-		currentXDelta3 = fix32Add(currentXDelta3, step3);
+		currentXDelta3 = currentXDelta3 + step3;
 		KLog_F4("i: ", FIX32(i), " z: ", zmap[i], " d4: ", hScrollIncrement2[i], " d8: ", hScrollIncrement3[i]);
 	}
 
