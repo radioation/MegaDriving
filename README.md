@@ -1,14 +1,14 @@
 # Mega Driving
-The code is being updated to compile with SGDK 2.11. Earlier versions of SGDK will 
-likely not work.
+The code is currently being updated to compile with SGDK 2.11. Some projects 
+have not yet been fixed.
+
+Once updated, earlier versions of SGDK will likely not compile.
 
 ```bash
 find . -name main.c -exec sed -i 's/fix16Div/F16_div'  {} +
 find . -name main.c -exec sed -i 's/fix32ToInt/F32_toInt/'  {} +
 find . -name main.c -exec sed -i 's/fix16ToInt/F16_toInt/'  {} +
 ```
-
-Some effects are no longer working with the new SGDK. I'll update as I find fixes.
 
 This repository contains *experimental* code I've written for fake 3D roads and other 
 Pseudo3D effects.
