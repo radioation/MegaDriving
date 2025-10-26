@@ -129,16 +129,16 @@ void update()
 		current_x = fix16Add(current_x, ddx);
 
 		ddy = fix32Add(dy, ddy);
-		s16 cdp = FF32_toInt(current_drawing_pos); // current vertical drawing position 
+		s16 cdp = F32_toInt(current_drawing_pos); // current vertical drawing position 
 		fix32 delta_drawing_pos = fix32Add(FIX32(1), ddy); // increment drawing position
 		fix32 next_drawing_pos = fix32Sub(current_drawing_pos, delta_drawing_pos);
-		s16 ndp = FF32_toInt(next_drawing_pos); // figure out next drawing position
+		s16 ndp = F32_toInt(next_drawing_pos); // figure out next drawing position
 		// repeat line if theres a gap greater than 1
 		for (; cdp > ndp; --cdp) // 
 		{
 			if (cdp <= horizon_line) // if current drawing position is above the horizon
 			{
-				HscrollA[cdp] = SCROLL_CENTER + FF16_toInt(current_x);   // this_line.x = current x | using horizontal scrolling to fake curves
+				HscrollA[cdp] = SCROLL_CENTER + F16_toInt(current_x);   // this_line.x = current x | using horizontal scrolling to fake curves
 				VscrollA[cdp] = bgY - cdp;			// set the vertical scroll amount for the current drawing position
 				horizon_line = cdp;             // update horizon line
 			}
@@ -157,12 +157,12 @@ void update()
 	background_position = fix16Sub(background_position, segments[bottom_segments_index].bgdx);
 	for (u16 y = 0; y < 160; ++y)
 	{
-		HscrollB[y] = FF16_toInt(background_position);
+		HscrollB[y] = F16_toInt(background_position);
 	}
 
 	// Move segments
 	segment_position = fix16Add(segment_position, speed);
-	if (FF16_toInt(segment_position) < 0)
+	if (F16_toInt(segment_position) < 0)
 	{
 		// bottom_segment = segment 
 		bottom_segments_index = segments_index;

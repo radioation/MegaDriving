@@ -84,19 +84,19 @@ void update()
 
 		// this_line.x = current_x
 		// we'll use horizontal scrolling of BG_A to fake curves.
-		HscrollA[223 - y] = SCROLL_CENTER + FF16_toInt(current_x);
+		HscrollA[223 - y] = SCROLL_CENTER + F16_toInt(current_x);
 	}
 
 	// scroll the background
 	background_position = background_position + segments[bottom_segments_index].bgdx;
 	for (u16 y = 0; y < 120; ++y)
 	{
-		HscrollB[y] = FF16_toInt(background_position);
+		HscrollB[y] = F16_toInt(background_position);
 	}
 
 	// Move segments
 	segment_position = segment_position + speed;
-	if (FF16_toInt(segment_position) < 0) // 0 is nearest
+	if (F16_toInt(segment_position) < 0) // 0 is nearest
 	{
 		// bottom_segment = segment
 		bottom_segments_index = segments_index;

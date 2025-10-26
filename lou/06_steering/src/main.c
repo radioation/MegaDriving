@@ -194,24 +194,24 @@ void createRoadsideObjs()
 			roadsideObjs[i].offsetY = 80;
 			roadsideObjs[i].offsetX = 24;
 			roadsideObjs[i].sprite = SPR_addSprite(&pine,
-																							FF32_toInt(roadsideObjs[i].posX),
-																							FF32_toInt(roadsideObjs[i].posY),
+																							F32_toInt(roadsideObjs[i].posX),
+																							F32_toInt(roadsideObjs[i].posY),
 																							TILE_ATTR(PAL3, 0, FALSE, FALSE));
 		}else if (i == 2 || i == 5 || i == 12 || i ==13 )
 		{
 			roadsideObjs[i].offsetY = 18;
 			roadsideObjs[i].offsetX = 16;
 			roadsideObjs[i].sprite = SPR_addSprite(&rock,
-																							FF32_toInt(roadsideObjs[i].posX),
-																							FF32_toInt(roadsideObjs[i].posY),
+																							F32_toInt(roadsideObjs[i].posX),
+																							F32_toInt(roadsideObjs[i].posY),
 																							TILE_ATTR(PAL3, 0, FALSE, FALSE));
 		}else if (i == 9 || i == 4)
 		{
 			roadsideObjs[i].offsetY = 40;
 			roadsideObjs[i].offsetX = 24;
 			roadsideObjs[i].sprite = SPR_addSprite(&sign,
-																							FF32_toInt(roadsideObjs[i].posX),
-																							FF32_toInt(roadsideObjs[i].posY),
+																							F32_toInt(roadsideObjs[i].posX),
+																							F32_toInt(roadsideObjs[i].posY),
 																							TILE_ATTR(PAL1, 0, FALSE, FALSE));
 		}
 		else
@@ -219,8 +219,8 @@ void createRoadsideObjs()
 			roadsideObjs[i].offsetY = 40;
 			roadsideObjs[i].offsetX = 24;
 			roadsideObjs[i].sprite = SPR_addSprite(&bush,
-																							FF32_toInt(roadsideObjs[i].posX),
-																							FF32_toInt(roadsideObjs[i].posY),
+																							F32_toInt(roadsideObjs[i].posX),
+																							F32_toInt(roadsideObjs[i].posY),
 																							TILE_ATTR(PAL3, 0, FALSE, FALSE));
 		}
 	}
@@ -587,7 +587,7 @@ void update()
 		++playerSprite->segment_index;
 	}
 	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
-	if (FF32_toInt(colorCyclePosition) < 0)
+	if (F32_toInt(colorCyclePosition) < 0)
 	{
 		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
 	}
@@ -646,23 +646,23 @@ void update()
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
 		fix32 tmpz = fix32Sub(colorCyclePosition, z);
-		u16 zcolor = (u16)FF32_toInt(tmpz << 1); // >> 1);
+		u16 zcolor = (u16)F32_toInt(tmpz << 1); // >> 1);
 
 		ddy = fix32Add(dy, ddy);
-		s16 cdp = FF32_toInt(currentDrawingPos);				 // current vertical drawing position
+		s16 cdp = F32_toInt(currentDrawingPos);				 // current vertical drawing position
 		fix32 deltaDrawingPos = fix32Add(FIX32(1), ddy); // increment drawing position
 		fix32 nextDrawingPos = fix32Sub(currentDrawingPos, deltaDrawingPos);
-		s16 ndp = FF32_toInt(nextDrawingPos); // figure out next drawing position
+		s16 ndp = F32_toInt(nextDrawingPos); // figure out next drawing position
 
 		// get perspective shift for current bgY
-		int xShift = FF32_toInt(angleOfRoad[223-bgY]); // closest is 0
+		int xShift = F32_toInt(angleOfRoad[223-bgY]); // closest is 0
 		fix32 currentRoadCenter = fix32Add(FIX32(160 + xShift), currentX);
 		// repeat line if theres a gap greater than 1
 		for (; cdp >= ndp; --cdp) //
 		{
 			if (cdp <= horizonLine) // if current drawing position is above the horizon
 			{
-				HscrollA[cdp] = SCROLL_CENTER + FF32_toInt(currentX) + xShift; // this_line.x = current x | using horizontal scrolling to fake curves
+				HscrollA[cdp] = SCROLL_CENTER + F32_toInt(currentX) + xShift; // this_line.x = current x | using horizontal scrolling to fake curves
 				VscrollA[cdp] = bgY - cdp;																		 // set the vertical scroll amount for the current drawing position
 				horizonLine = cdp;																						 // update horizon line
 				yToZdist[cdp] = z;
@@ -729,7 +729,7 @@ void update()
 		backgroundPosition = fix16Sub(backgroundPosition, segments[playerSprite->segment_index].bgdx);
 		for (u16 y = 12; y < 160; ++y)
 		{
-			HscrollB[y] = FF16_toInt(backgroundPosition);
+			HscrollB[y] = F16_toInt(backgroundPosition);
 		}
 	}
 }
@@ -830,8 +830,8 @@ int main(bool hard)
 	playerSprite->posX = FIX32(116.0);
 	playerSprite->posY = FIX32(160.0);																	 // top pixel of car is at 162.  bottom pixel of car is at 211.  so dist 0 is y=160
 	playerSprite->sprite = SPR_addSprite(&car,													 // Sprite defined in resources
-																			 FF32_toInt(playerSprite->posX), // starting X position
-																			 FF32_toInt(playerSprite->posY), // starting Y position
+																			 F32_toInt(playerSprite->posX), // starting X position
+																			 F32_toInt(playerSprite->posY), // starting Y position
 																			 TILE_ATTR(PAL2,								 // specify palette
 																								 1,										 // Tile priority ( with background)
 																								 FALSE,								 // flip the sprite vertically?
@@ -850,8 +850,8 @@ int main(bool hard)
 	redCarSprite->posX = FIX32(40.0);
 	redCarSprite->posY = FIX32(160.0);																	 // bottom of car is ~12 from bottom of screen.
 	redCarSprite->sprite = SPR_addSprite(&red_car,											 // Sprite defined in resources
-																			 FF32_toInt(redCarSprite->posX), // starting X position
-																			 FF32_toInt(redCarSprite->posY), // starting Y position
+																			 F32_toInt(redCarSprite->posX), // starting X position
+																			 F32_toInt(redCarSprite->posY), // starting Y position
 																			 TILE_ATTR(PAL2,								 // specify palette
 																								 1,										 // Tile priority ( with background)
 																								 FALSE,								 // flip the sprite vertically?
@@ -870,8 +870,8 @@ int main(bool hard)
 	greenCarSprite->posX = FIX32(192.0);
 	greenCarSprite->posY = FIX32(160.0);
 	greenCarSprite->sprite = SPR_addSprite(&green_car,											 // Sprite defined in resources
-																				 FF32_toInt(greenCarSprite->posX), // starting X position
-																				 FF32_toInt(greenCarSprite->posY), // starting Y position
+																				 F32_toInt(greenCarSprite->posX), // starting X position
+																				 F32_toInt(greenCarSprite->posY), // starting Y position
 																				 TILE_ATTR(PAL2,									 // specify palette
 																									 1,											 // Tile priority ( with background)
 																									 FALSE,									 // flip the sprite vertically?
@@ -915,15 +915,15 @@ int main(bool hard)
 		for (u16 i = 0; i < NUMBER_OF_ROADSIDE_OBJS; ++i)
 		{
 			// update z-order  for roadsideObjs
-			SPR_setDepth(roadsideObjs[i].sprite, 224 - FF32_toInt(roadsideObjs[i].posY) - roadsideObjs[i].offsetY);
+			SPR_setDepth(roadsideObjs[i].sprite, 224 - F32_toInt(roadsideObjs[i].posY) - roadsideObjs[i].offsetY);
 			// Draw object at new position
-			SPR_setPosition(roadsideObjs[i].sprite, FF32_toInt(roadsideObjs[i].posX), fix32ToInt(roadsideObjs[i].posY));
+			SPR_setPosition(roadsideObjs[i].sprite, F32_toInt(roadsideObjs[i].posX), fix32ToInt(roadsideObjs[i].posY));
 		}
 
 		// Draw car at now position
-		SPR_setPosition(playerSprite->sprite, FF32_toInt(playerSprite->posX), fix32ToInt(playerSprite->posY));
-		SPR_setPosition(redCarSprite->sprite, FF32_toInt(redCarSprite->posX), fix32ToInt(redCarSprite->posY));
-		SPR_setPosition(greenCarSprite->sprite, FF32_toInt(greenCarSprite->posX), fix32ToInt(greenCarSprite->posY));
+		SPR_setPosition(playerSprite->sprite, F32_toInt(playerSprite->posX), fix32ToInt(playerSprite->posY));
+		SPR_setPosition(redCarSprite->sprite, F32_toInt(redCarSprite->posX), fix32ToInt(redCarSprite->posY));
+		SPR_setPosition(greenCarSprite->sprite, F32_toInt(greenCarSprite->posX), fix32ToInt(greenCarSprite->posY));
 
 		SPR_update();
 
@@ -935,7 +935,7 @@ int main(bool hard)
 		fix16 h = FIX16(horizonLine - 113);
 		//h = FF16_div(h, FIX16(6));
 		h = h >> 2;
-		VDP_setVerticalScroll(BG_B, FF16_toInt(h));
+		VDP_setVerticalScroll(BG_B, F16_toInt(h));
 
 		SYS_doVBlankProcess();
 	}
