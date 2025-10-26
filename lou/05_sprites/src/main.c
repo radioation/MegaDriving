@@ -354,8 +354,8 @@ int main(bool hard)
 	// this gets me 0.65 nearest and 25.0 farthest
 	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = FF32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(112)));
-		scale[i] = FF32_div(FIX32(1), zmap[i]);
+		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(112)));
+		scale[i] = F32_div(FIX32(1), zmap[i]);
 		KLog_F3("i: ", FIX32(i), " z: ", zmap[i], " s: ", scale[i]);
 	}
 
@@ -475,7 +475,7 @@ int main(bool hard)
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
 
 		fix32 h = FIX32(horizon_line - 113);
-		h = FF32_div(h, FIX32(6));
+		h = F32_div(h, FIX32(6));
 		VDP_setVerticalScroll(BG_B, F32_toInt(h));
 
 		SYS_doVBlankProcess();

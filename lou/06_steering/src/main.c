@@ -455,7 +455,7 @@ void updatePlayer()
 		}
 
 		// update angleOfRoad for perspective steering.
-		fix32 step = FF32_div(fix32Sub(centerLine, FIX32(160)), // calc diff between center and positoin at front
+		fix32 step = F32_div(fix32Sub(centerLine, FIX32(160)), // calc diff between center and positoin at front
 													FIX32(ZMAP_LENGTH));							// divide by the height of the road graphic.
 		fix32 current = FIX32(0);
 		for (int i = ZMAP_LENGTH-1; i >= 0; --i)// farthest has lowest offset.
@@ -543,11 +543,11 @@ void updateCar(struct CP_SPRITE *carSprite, u8 onYourLeft)
 		}
 		if (onYourLeft)
 		{
-			carSprite->posX = fix32Sub(fix32Sub(yToRoadCenter[y], FIX32(carSprite->offsetX)), FF32_div(roadSideObjectOffset[y], FIX32(2.7)));
+			carSprite->posX = fix32Sub(fix32Sub(yToRoadCenter[y], FIX32(carSprite->offsetX)), F32_div(roadSideObjectOffset[y], FIX32(2.7)));
 		}
 		else
 		{
-			carSprite->posX = fix32Add(fix32Sub(yToRoadCenter[y], FIX32(carSprite->offsetX)), FF32_div(roadSideObjectOffset[y], FIX32(2.7)));
+			carSprite->posX = fix32Add(fix32Sub(yToRoadCenter[y], FIX32(carSprite->offsetX)), F32_div(roadSideObjectOffset[y], FIX32(2.7)));
 		}
 	}
 	else
@@ -742,8 +742,8 @@ int main(bool hard)
 	// Z = Y_world / (Y_screen - (height_screen / 2))
 	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = FF32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
-		//scale[i] = FF16_div(FIX16(1), zmap[i]);
+		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
+		//scale[i] = F16_div(FIX16(1), zmap[i]);
 		//KLog_F3("i: ", FIX16(i), " z: ", zmap[i], " s: ", scale[i]);
 		KLog_F2("i: ", FIX32(i), " z: ", zmap[i]);
 	}
@@ -933,7 +933,7 @@ int main(bool hard)
 		VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, 160, DMA_QUEUE);
 
 		fix16 h = FIX16(horizonLine - 113);
-		//h = FF16_div(h, FIX16(6));
+		//h = F16_div(h, FIX16(6));
 		h = h >> 2;
 		VDP_setVerticalScroll(BG_B, F16_toInt(h));
 

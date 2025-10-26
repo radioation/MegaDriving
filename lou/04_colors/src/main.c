@@ -236,7 +236,7 @@ int main(bool hard)
 	// Z = Y_world / (Y_screen - (height_screen / 2))
 	for (u16 i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = FF16_div(FIX16(-75), fix16Sub(FIX16(i), FIX16(112)));
+		zmap[i] = F16_div(FIX16(-75), fix16Sub(FIX16(i), FIX16(112)));
 		KLog_f1("FIX16(", zmap[i]);
 	}
 
