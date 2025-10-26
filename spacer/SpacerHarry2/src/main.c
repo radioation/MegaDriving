@@ -118,7 +118,7 @@ void updatePlayer()
 	}
 	else if (playerXDir > 0)
 	{
-		playerSprite->posX = fix32Add(playerSprite->posX, FIX32(2.5));
+		playerSprite->posX = playerSprite->posX + FIX32(2.5);
 		if (playerSprite->posX > FIX32(292))
 		{
 			playerSprite->posX = FIX32(292);
@@ -139,7 +139,7 @@ void updatePlayer()
 	}
 	else if (playerYDir > 0)
 	{
-		playerSprite->posY = fix32Add(playerSprite->posY, FIX32(2.5));
+		playerSprite->posY = playerSprite->posY + FIX32(2.5);
 		if (playerSprite->posY > FIX32(172))
 		{
 			playerSprite->posY = FIX32(172);
@@ -199,7 +199,7 @@ void update()
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH]);
+			workScrollA[c] = workScrollA[c] + hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
@@ -213,7 +213,7 @@ void update()
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH]);
+			workScrollA[c] = workScrollA[c] + hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
@@ -227,7 +227,7 @@ void update()
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH]);
+			workScrollA[c] = workScrollA[c] + hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
@@ -316,11 +316,11 @@ int main(bool hard)
 		// Z = Y_world / (Y_screen - (height_screen / 2))
 		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
 		hScrollIncrement1[i] = currentXDelta1;
-		currentXDelta1 = fix32Add(currentXDelta1, step1);
+		currentXDelta1 = currentXDelta1 + step1;
 		hScrollIncrement2[i] = currentXDelta2;
-		currentXDelta2 = fix32Add(currentXDelta2, step2);
+		currentXDelta2 = currentXDelta2 + step2;
 		hScrollIncrement3[i] = currentXDelta3;
-		currentXDelta3 = fix32Add(currentXDelta3, step3);
+		currentXDelta3 = currentXDelta3 + step3;
 		// KLog_F4("i: ", FIX32(i), " z: ", zmap[i], " d4: ", hScrollIncrement2[i], " d8: ", hScrollIncrement3[i]);
 	}
 
