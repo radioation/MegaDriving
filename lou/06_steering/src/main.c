@@ -233,11 +233,11 @@ void updateRoadsideObjs()
 	{
 		// position the roadside objects in the Y dir
 		// figure out z position by subtracting the player speed (moves obj toward player)
-		roadsideObjs[i].posZ = fix32Sub(roadsideObjs[i].posZ, playerSprite->speed);
+		roadsideObjs[i].posZ = roadsideObjs[i].posZ - playerSprite->speed;
 		if (roadsideObjs[i].posZ < zmap[0])
 		{
 			// moved past minZ so move back to the top
-			roadsideObjs[i].posZ = fix32Add(roadsideObjs[i].posZ, zmap[ZMAP_LENGTH - 1]);
+			roadsideObjs[i].posZ = roadsideObjs[i].posZ + zmap[ZMAP_LENGTH - 1];
 			SPR_setVisibility(roadsideObjs[i].sprite, HIDDEN);
 		}
 
@@ -339,17 +339,17 @@ void updatePlayer()
 	if (accelerate == 1)
 	{
 		// speed up
-		playerSprite->speed = fix32Add(playerSprite->speed, FIX32(0.033));
+		playerSprite->speed = playerSprite->speed + FIX32(0.033);
 	}
 	else if (accelerate == -1)
 	{
 		// breaks applied
-		playerSprite->speed = fix32Sub(playerSprite->speed, FIX32(0.78));
+		playerSprite->speed = playerSprite->speed - FIX32(0.78);
 	}
 	else if (accelerate == 0)
 	{
 		// slow down naturally
-		playerSprite->speed = fix32Sub(playerSprite->speed, FIX32(0.06));
+		playerSprite->speed = playerSprite->speed - FIX32(0.06);
 	}
 	// limit speed
 	if (playerSprite->speed < FIX32(0))
@@ -365,7 +365,7 @@ void updatePlayer()
 	// handle turning
 	if (turning == 1)
 	{
-		steeringDir = fix32Add(steeringDir, FIX32(2.2));
+		steeringDir = steeringDir + FIX32(2.2);
 		if (steeringDir > FIX32(20))
 		{
 			steeringDir = FIX32(20);
@@ -373,7 +373,7 @@ void updatePlayer()
 	}
 	else if (turning == -1)
 	{
-		steeringDir = fix32Sub(steeringDir, FIX32(2.2));
+		steeringDir = steeringDir - FIX32(2.2);
 		if (steeringDir < FIX32(-20))
 		{
 			steeringDir = FIX32(-20);
@@ -384,7 +384,7 @@ void updatePlayer()
 		// pull back to center
 		if (steeringDir < FIX32(0.0))
 		{
-			steeringDir = fix32Add(steeringDir, FIX32(3.2));
+			steeringDir = steeringDir + FIX32(3.2);
 			if (steeringDir > FIX32(0.0))
 			{
 				steeringDir = FIX32(0.0);
@@ -392,7 +392,7 @@ void updatePlayer()
 		}
 		else if (steeringDir > FIX32(0.0))
 		{
-			steeringDir = fix32Sub(steeringDir, FIX32(3.2));
+			steeringDir = steeringDir - FIX32(3.2);
 			if (steeringDir < FIX32(0.0))
 			{
 				steeringDir = FIX32(0.0);
@@ -436,11 +436,11 @@ void updatePlayer()
 		if (turning != 0)
 		{
 			//KLog_F1("steeringDir: ", steeringDir);
-			centerLine = fix32Sub(centerLine, steeringDir);
+			centerLine = centerLine - steeringDir;
 		}
 
 		// also factor in the curve of the road segment
-		centerLine = fix32Add(centerLine, segments[playerSprite->segment_index].carX);
+		centerLine = centerLine + segments[playerSprite->segment_index].carX;
 
 
 		//KLog_F1( "centerLine: ", centerLine);
@@ -455,13 +455,13 @@ void updatePlayer()
 		}
 
 		// update angleOfRoad for perspective steering.
-		fix32 step = F32_div(fix32Sub(centerLine, FIX32(160)), // calc diff between center and positoin at front
+		fix32 step = F32_div((centerLine - FIX32(160)), // calc diff between center and positoin at front
 													FIX32(ZMAP_LENGTH));							// divide by the height of the road graphic.
 		fix32 current = FIX32(0);
 		for (int i = ZMAP_LENGTH-1; i >= 0; --i)// farthest has lowest offset.
 		{
 			angleOfRoad[i] = current;
-			current = fix32Add(current, step);
+			current = current + step;
 		}
 	}
 }
@@ -470,7 +470,7 @@ void updateCar(struct CP_SPRITE *carSprite, u8 onYourLeft)
 {
 	// update car position along track
 	//KLog_F2("spd: ", carSprite->speed, " pos: ", carSprite->position);
-	carSprite->position = fix32Add(carSprite->position, carSprite->speed);
+	carSprite->position = carSprite->position + carSprite->speed;
 	if (carSprite->position >= trackLength)
 	{
 		carSprite->position = FIX32(0);
@@ -482,14 +482,14 @@ void updateCar(struct CP_SPRITE *carSprite, u8 onYourLeft)
 	}
 
 	// Z distance of car from player
-	fix32 dist = fix32Sub(carSprite->position, playerSprite->position);
+	fix32 dist = carSprite->position - playerSprite->position;
 	if (dist < FIX32(0)																										// negative
 			&& playerSprite->position > (trackLength - zmap[ZMAP_LENGTH - 1]) // player close to end of track
 			&& (carSprite->position < zmap[ZMAP_LENGTH - 1])									// enemy close to beginning of track
 	)
 	{
 		// recompute dist because of edge case
-		dist = fix32Sub(fix32Add(carSprite->position, trackLength), playerSprite->position);
+		dist = (carSprite->position + trackLength) - playerSprite->position;
 	}
 
 	// check if car should be visible to the player
@@ -543,11 +543,11 @@ void updateCar(struct CP_SPRITE *carSprite, u8 onYourLeft)
 		}
 		if (onYourLeft)
 		{
-			carSprite->posX = fix32Sub(fix32Sub(yToRoadCenter[y], FIX32(carSprite->offsetX)), F32_div(roadSideObjectOffset[y], FIX32(2.7)));
+			carSprite->posX = (yToRoadCenter[y] - FIX32(carSprite->offsetX)) - F32_div(roadSideObjectOffset[y], FIX32(2.7));
 		}
 		else
 		{
-			carSprite->posX = fix32Add(fix32Sub(yToRoadCenter[y], FIX32(carSprite->offsetX)), F32_div(roadSideObjectOffset[y], FIX32(2.7)));
+			carSprite->posX = (yToRoadCenter[y] - FIX32(carSprite->offsetX)) + F32_div(roadSideObjectOffset[y], FIX32(2.7));
 		}
 	}
 	else
@@ -575,7 +575,7 @@ void update()
 	horizonLine = 223;										// keep track of where the horizon is.  I"m starting at the bottom and will update as the rode gets computed
 
 	// car position changes with speed
-	playerSprite->position = fix32Add(playerSprite->position, playerSprite->speed);
+	playerSprite->position = playerSprite->position + playerSprite->speed;
 	//KLog_F2("car pos: ", playerSprite->position, " track length: ", trackLength );
 	if (playerSprite->position >= trackLength)
 	{
@@ -586,7 +586,7 @@ void update()
 	{
 		++playerSprite->segment_index;
 	}
-	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
+	colorCyclePosition = colorCyclePosition - playerSprite->speed;
 	if (F32_toInt(colorCyclePosition) < 0)
 	{
 		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
@@ -610,7 +610,7 @@ void update()
 		//  instead of top_segment/bottom_segment.  So now I'm searching
 		//  for visible segments.
 		fix32 z = zmap[223 - bgY]; // zmap[0] is closest
-		fix32 posZ = fix32Add(playerSprite->position, z);
+		fix32 posZ = playerSprite->position + z;
 		//KLog_F2("posZ: ", posZ, " z: ", z);
 		bool found = FALSE;
 		while (!found)
@@ -630,33 +630,31 @@ void update()
 				if (zSegmentPos >= ROAD_SEGMENTS_LENGTH)
 				{
 					zSegmentPos = zSegmentPos - ROAD_SEGMENTS_LENGTH;
-					posZ = fix32Sub(posZ, trackLength);
+					posZ = posZ - trackLength;
 				}
 			}
 		}
 
-		// ddx += dx
-		ddx = fix32Add(ddx, dx);
-		// currentX += ddx
-		currentX = fix32Add(currentX, ddx);
+		ddx += dx;
+		currentX += ddx;
 
 		//////////////////////////////////////////////////////////////////////
 		// Coloring
 		//  For each Z, make one of the bits represent the shade
 		//  of the road (dark or light). Then, just draw the
 		//  appropriate road pattern or colors for that bit
-		fix32 tmpz = fix32Sub(colorCyclePosition, z);
+		fix32 tmpz = colorCyclePosition - z;
 		u16 zcolor = (u16)F32_toInt(tmpz << 1); // >> 1);
 
-		ddy = fix32Add(dy, ddy);
+		ddy += dy;
 		s16 cdp = F32_toInt(currentDrawingPos);				 // current vertical drawing position
-		fix32 deltaDrawingPos = fix32Add(FIX32(1), ddy); // increment drawing position
-		fix32 nextDrawingPos = fix32Sub(currentDrawingPos, deltaDrawingPos);
+		fix32 deltaDrawingPos = FIX32(1) + ddy; // increment drawing position
+		fix32 nextDrawingPos = currentDrawingPos - deltaDrawingPos;
 		s16 ndp = F32_toInt(nextDrawingPos); // figure out next drawing position
 
 		// get perspective shift for current bgY
 		int xShift = F32_toInt(angleOfRoad[223-bgY]); // closest is 0
-		fix32 currentRoadCenter = fix32Add(FIX32(160 + xShift), currentX);
+		fix32 currentRoadCenter = FIX32(160 + xShift) + currentX;
 		// repeat line if theres a gap greater than 1
 		for (; cdp >= ndp; --cdp) //
 		{
@@ -682,12 +680,12 @@ void update()
 				if (z > roadsideObjs[i].posZ)
 				{
 					// note: doing this will make y-motion jumpy up close. Consider interpoating if not *TOO* expensive.
-					roadsideObjs[i].posY = fix32Sub(currentDrawingPos, FIX32(roadsideObjs[i].offsetY));
+					roadsideObjs[i].posY = currentDrawingPos - FIX32(roadsideObjs[i].offsetY);
 
 					// figure out X position.
 					if (i % 2 == 0)
 					{
-						roadsideObjs[i].posX = fix32Sub(currentRoadCenter, fix32Add(roadSideObjectOffset[bgY], FIX32(roadsideObjs[i].offsetX)));
+						roadsideObjs[i].posX = (currentRoadCenter - (roadSideObjectOffset[bgY] + FIX32(roadsideObjs[i].offsetX)));
 						if (roadsideObjs[i].posX < FIX32(-40)) // hide sprite if it's offscreen
 						{
 							SPR_setVisibility(roadsideObjs[i].sprite, HIDDEN);
@@ -699,7 +697,7 @@ void update()
 					}
 					else
 					{
-						roadsideObjs[i].posX = fix32Add(currentRoadCenter, fix32Sub(roadSideObjectOffset[bgY], FIX32(roadsideObjs[i].offsetX)));
+						roadsideObjs[i].posX = (currentRoadCenter + (roadSideObjectOffset[bgY] - FIX32(roadsideObjs[i].offsetX)));
 						if (roadsideObjs[i].posX > FIX32(320)) // hide sprite if it's offscreen
 						{
 							SPR_setVisibility(roadsideObjs[i].sprite, HIDDEN);
@@ -726,7 +724,7 @@ void update()
 	// scroll the background
 	if (playerSprite->speed != FIX32(0.0))
 	{
-		backgroundPosition = fix16Sub(backgroundPosition, segments[playerSprite->segment_index].bgdx);
+		backgroundPosition = backgroundPosition - segments[playerSprite->segment_index].bgdx;
 		for (u16 y = 12; y < 160; ++y)
 		{
 			HscrollB[y] = F16_toInt(backgroundPosition);
@@ -742,7 +740,7 @@ int main(bool hard)
 	// Z = Y_world / (Y_screen - (height_screen / 2))
 	for (int i = 0; i < ZMAP_LENGTH; ++i)
 	{
-		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
+		zmap[i] = F32_div(FIX32(-75), (FIX32(i) - FIX32(113)));
 		//scale[i] = F16_div(FIX16(1), zmap[i]);
 		//KLog_F3("i: ", FIX16(i), " z: ", zmap[i], " s: ", scale[i]);
 		KLog_F2("i: ", FIX32(i), " z: ", zmap[i]);
@@ -773,12 +771,12 @@ int main(bool hard)
 	for (int i = 224 - ZMAP_LENGTH; i < 224; i++)
 	{
 		roadSideObjectOffset[i] = objectOffsetFromCenter;
-		objectOffsetFromCenter = fix32Add(objectOffsetFromCenter, objectStep);
+		objectOffsetFromCenter = objectOffsetFromCenter + objectStep;
 
 		roadSideOffset[i] = sideOffsetFromCenter;
-		sideOffsetFromCenter = fix32Add(sideOffsetFromCenter, sideStep);
+		sideOffsetFromCenter = sideOffsetFromCenter + sideStep;
 		//roadSideObjectOffsetLeft[i] = leftFromCenter;
-		//leftFromCenter = fix32Sub(leftFromCenter, step);
+		//leftFromCenter = leftFromCenter - step;
 		//KLog_F2(" i: ", FIX32(i), "  road offset right: ", roadSideObjectOffsetRight[i]);
 
 		// clear it for later use
@@ -789,7 +787,7 @@ int main(bool hard)
 	// prep road variables
 	for (u8 i = 0; i < ROAD_SEGMENTS_LENGTH; ++i)
 	{
-		trackLength = fix32Add(trackLength, segments[i].length);
+		trackLength = trackLength + segments[i].length;
 		segmentDistances[i] = trackLength;
 		KLog_F2(" i: ", FIX32(i), "  trackLength: ", trackLength);
 	}
