@@ -110,7 +110,7 @@ void updatePlayer()
 	// player position affects H/Y
 	if (playerXDir < 0)
 	{
-		playerSprite->posX = fix32Sub(playerSprite->posX, FIX32(2.5));
+		playerSprite->posX = playerSprite->posX - FIX32(2.5);
 		if (playerSprite->posX < FIX32(playerSprite->offsetX))
 		{
 			playerSprite->posX = FIX32(playerSprite->offsetX);
@@ -129,7 +129,7 @@ void updatePlayer()
 	
 	if (playerYDir < 0)
 	{
-		playerSprite->posY = fix32Sub(playerSprite->posY, FIX32(2.5));
+		playerSprite->posY = playerSprite->posY - FIX32(2.5);
 		if (playerSprite->posY < FIX32(52))
 		{
 			playerSprite->posY = FIX32(52);
@@ -152,7 +152,7 @@ void updatePlayer()
 		fix32 h = b - F32_div(    playerSprite->posY, FIX32(3.0) );
 		horizonLine = F32_toInt( h  );
 		// ground line steps
-		groundLineCount = fix32Sub( FIX32(223), h );
+		groundLineCount = FIX32(223) - h;
 		groundLineStep = F32_div( fullGroundLineCount, groundLineCount);
 	}
 }
@@ -162,7 +162,7 @@ void updatePlayer()
 void update()
 {
 	// VERTICAL PROCESSING //////////////////////////////////////////
-	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
+	colorCyclePosition = colorCyclePosition - playerSprite->speed;
 	if (F32_toInt(colorCyclePosition) < 0)
 	{
 		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
@@ -173,12 +173,12 @@ void update()
 	u16 j = horizonLine; 
 
 	while( c > horizonLine ) {
-		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[F32_toInt(i)-ZMAP_LENGTH]);
+		fix32 tmpz = colorCyclePosition - zmap[F32_toInt(i)-ZMAP_LENGTH];
 		u16 zcolor = (u16)F32_toInt(tmpz << 2); // >> 1);
 		colors[j] = zcolor & 1;
 		VscrollA[c] =  F32_toInt(i) - c; 
 
-		i = fix32Sub( i, groundLineStep);
+		i = i - groundLineStep;
 		--c;
 		++j;
 	}
@@ -201,7 +201,7 @@ void update()
 		{
 			workScrollA[c] = workScrollA[c] + hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
-			i = fix32Sub(i, groundLineStep);
+			i = i - groundLineStep;
 			--c;
 		}
 		bgDelta = FIX16(-0.8);
@@ -215,7 +215,7 @@ void update()
 		{
 			workScrollA[c] = workScrollA[c] + hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
-			i = fix32Sub(i, groundLineStep);
+			i = i - groundLineStep;
 			--c;
 		}
 		bgDelta = FIX16(-0.4);
@@ -229,7 +229,7 @@ void update()
 		{
 			workScrollA[c] = workScrollA[c] + hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
-			i = fix32Sub(i, groundLineStep);
+			i = i - groundLineStep;
 			--c;
 		}
 		bgDelta = FIX16(-0.2);
@@ -241,9 +241,9 @@ void update()
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH]);
+			workScrollA[c] = workScrollA[c] - hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
-			i = fix32Sub(i, groundLineStep);
+			i = i - groundLineStep;
 			--c;
 		}
 		bgDelta = FIX16(0.8);
@@ -255,9 +255,9 @@ void update()
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH]);
+			workScrollA[c] = workScrollA[c] - hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
-			i = fix32Sub(i, groundLineStep);
+			i = i - groundLineStep;
 			--c;
 		}
 		bgDelta = FIX16(0.4);
@@ -269,9 +269,9 @@ void update()
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH]);
+			workScrollA[c] = workScrollA[c] - hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH];
 			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
-			i = fix32Sub(i, groundLineStep);
+			i = i - groundLineStep;
 			--c;
 		}
 		bgDelta = FIX16(0.2);
@@ -287,7 +287,7 @@ void update()
 
 	if (playerSprite->speed != FIX32(0.0))
 	{
-		backgroundPosition = fix16Sub(backgroundPosition, bgDelta );
+		backgroundPosition = backgroundPosition - bgDelta;
 		for (u16 y = 12; y < 160; ++y)
 		{
 			HscrollB[y] = F16_toInt(backgroundPosition);
@@ -300,7 +300,7 @@ void update()
 int main(bool hard)
 {
 	horizonLine = 223 - ZMAP_LENGTH;
-	groundLineCount = fix32Sub(FIX32(223), horizonLine);
+	groundLineCount = FIX32(223) - horizonLine;
 	groundLineStep = F32_div(fullGroundLineCount, fullGroundLineCount);
 	//////////////////////////////////////////////////////////////
 	// precalculate some stuff
@@ -314,7 +314,7 @@ int main(bool hard)
 	{
 		// http://www.extentofthejam.com/pseudo/
 		// Z = Y_world / (Y_screen - (height_screen / 2))
-		zmap[i] = F32_div(FIX32(-75), fix32Sub(FIX32(i), FIX32(113)));
+		zmap[i] = F32_div(FIX32(-75), FIX32(i) - FIX32(113));
 		hScrollIncrement1[i] = currentXDelta1;
 		currentXDelta1 = currentXDelta1 + step1;
 		hScrollIncrement2[i] = currentXDelta2;
