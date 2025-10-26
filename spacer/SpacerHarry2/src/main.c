@@ -150,7 +150,7 @@ void updatePlayer()
 		// get the horizon line
 		// find step   h = mx + b  :  m happens to be (-1/2)
 		fix32 h = b - fix32Div(    playerSprite->posY, FIX32(3.0) );
-		horizonLine = fix32ToInt( h  );
+		horizonLine = F32_toInt( h  );
 		// ground line steps
 		groundLineCount = fix32Sub( FIX32(223), h );
 		groundLineStep = fix32Div( fullGroundLineCount, groundLineCount);
@@ -163,7 +163,7 @@ void update()
 {
 	// VERTICAL PROCESSING //////////////////////////////////////////
 	colorCyclePosition = fix32Sub(colorCyclePosition, playerSprite->speed);
-	if (fix32ToInt(colorCyclePosition) < 0)
+	if (F32_toInt(colorCyclePosition) < 0)
 	{
 		colorCyclePosition = zmap[ZMAP_LENGTH - 1]; // Send segment to farthest visible distance
 	}
@@ -173,10 +173,10 @@ void update()
 	u16 j = horizonLine; 
 
 	while( c > horizonLine ) {
-		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[fix32ToInt(i)-ZMAP_LENGTH]);
-		u16 zcolor = (u16)fix32ToInt(tmpz << 2); // >> 1);
+		fix32 tmpz = fix32Sub(colorCyclePosition, zmap[F32_toInt(i)-ZMAP_LENGTH]);
+		u16 zcolor = (u16)F32_toInt(tmpz << 2); // >> 1);
 		colors[j] = zcolor & 1;
-		VscrollA[c] =  fix32ToInt(i) - c; 
+		VscrollA[c] =  F32_toInt(i) - c; 
 
 		i = fix32Sub( i, groundLineStep);
 		--c;
@@ -193,84 +193,84 @@ void update()
 
 	// HORIZONTAL SCROLLING  ////////////////////////////////////////
 	fix16 bgDelta = FIX16(0);
-	if (fix32ToInt(playerSprite->posX) < 68)
+	if (F32_toInt(playerSprite->posX) < 68)
 	{
 		fix32 i = FIX32(223);
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement3[fix32ToInt(i) - ZMAP_LENGTH]);
-			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
 		}
 		bgDelta = FIX16(-0.8);
 		scrollSteps += 8;
 	}
-	else if (fix32ToInt(playerSprite->posX) < 138)
+	else if (F32_toInt(playerSprite->posX) < 138)
 	{
 		fix32 i = FIX32(223);
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement2[fix32ToInt(i) - ZMAP_LENGTH]);
-			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
 		}
 		bgDelta = FIX16(-0.4);
 		scrollSteps += 4;
 	}
-	else if (fix32ToInt(playerSprite->posX) < 150)
+	else if (F32_toInt(playerSprite->posX) < 150)
 	{
 		fix32 i = FIX32(223);
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement1[fix32ToInt(i) - ZMAP_LENGTH]);
-			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Add(workScrollA[c], hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
 		}
 		bgDelta = FIX16(-0.2);
 		scrollSteps += 2;
 	}
-	else if (fix32ToInt(playerSprite->posX) > 252)
+	else if (F32_toInt(playerSprite->posX) > 252)
 	{
 		fix32 i = FIX32(223);
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement3[fix32ToInt(i) - ZMAP_LENGTH]);
-			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement3[F32_toInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
 		}
 		bgDelta = FIX16(0.8);
 		scrollSteps -= 8;
 	}
-	else if (fix32ToInt(playerSprite->posX) > 190)
+	else if (F32_toInt(playerSprite->posX) > 190)
 	{
 		fix32 i = FIX32(223);
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement2[fix32ToInt(i) - ZMAP_LENGTH]);
-			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement2[F32_toInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
 		}
 		bgDelta = FIX16(0.4);
 		scrollSteps -= 4;
 	}
-	else if (fix32ToInt(playerSprite->posX) > 170)
+	else if (F32_toInt(playerSprite->posX) > 170)
 	{
 		fix32 i = FIX32(223);
 		u16 c = 223;
 		while (c > horizonLine)
 		{
-			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement1[fix32ToInt(i) - ZMAP_LENGTH]);
-			HscrollA[c] = fix32ToInt(workScrollA[c]) + SCROLL_CENTER;
+			workScrollA[c] = fix32Sub(workScrollA[c], hScrollIncrement1[F32_toInt(i) - ZMAP_LENGTH]);
+			HscrollA[c] = F32_toInt(workScrollA[c]) + SCROLL_CENTER;
 			i = fix32Sub(i, groundLineStep);
 			--c;
 		}
@@ -290,7 +290,7 @@ void update()
 		backgroundPosition = fix16Sub(backgroundPosition, bgDelta );
 		for (u16 y = 12; y < 160; ++y)
 		{
-			HscrollB[y] = fix16ToInt(backgroundPosition);
+			HscrollB[y] = F16_toInt(backgroundPosition);
 		}
 	}
 
@@ -361,8 +361,8 @@ int main(bool hard)
 	playerSprite->posX = FIX32(160.0);
 	playerSprite->posY = FIX32(160.0);																													 //
 	playerSprite->sprite = SPR_addSprite(&player,																								 // Sprite defined in resources
-																			 fix32ToInt(playerSprite->posX) - playerSprite->offsetX, // starting X position
-																			 fix32ToInt(playerSprite->posY) - playerSprite->offsetY, // starting Y position
+																			 F32_toInt(playerSprite->posX) - playerSprite->offsetX, // starting X position
+																			 F32_toInt(playerSprite->posY) - playerSprite->offsetY, // starting Y position
 																			 TILE_ATTR(PAL1,																				 // specify palette
 																								 1,																						 // Tile priority ( with background)
 																								 FALSE,																				 // flip the sprite vertically?
@@ -381,8 +381,8 @@ int main(bool hard)
 	playerShadowSprite->posX = FIX32(160.0);
 	playerShadowSprite->posY = FIX32(210.0);																																			 //
 	playerShadowSprite->sprite = SPR_addSprite(&shadow,																														 // Sprite defined in resources
-																						 fix32ToInt(playerShadowSprite->posX) - playerShadowSprite->offsetX, // starting X position
-																						 fix32ToInt(playerShadowSprite->posY) - playerShadowSprite->offsetY, // starting Y position
+																						 F32_toInt(playerShadowSprite->posX) - playerShadowSprite->offsetX, // starting X position
+																						 F32_toInt(playerShadowSprite->posY) - playerShadowSprite->offsetY, // starting Y position
 																						 TILE_ATTR(PAL1,																										 // specify palette
 																											 1,																												 // Tile priority ( with background)
 																											 FALSE,																										 // flip the sprite vertically?
@@ -398,8 +398,8 @@ int main(bool hard)
 	bossSprite->posX = FIX32(112.0);
 	bossSprite->posY = FIX32(60.0);																	 //
 	bossSprite->sprite = SPR_addSprite(&boss,												 // Sprite defined in resources
-																		 fix32ToInt(bossSprite->posX), // starting X position
-																		 fix32ToInt(bossSprite->posY), // starting Y position
+																		 F32_toInt(bossSprite->posX), // starting X position
+																		 F32_toInt(bossSprite->posY), // starting Y position
 																		 TILE_ATTR(PAL2,							 // specify palette
 																							 1,									 // Tile priority ( with background)
 																							 FALSE,							 // flip the sprite vertically?
@@ -414,8 +414,8 @@ int main(bool hard)
 	bossShadowSprite->posX = FIX32(132.0);
 	bossShadowSprite->posY = FIX32(180.0);																			 //
 	bossShadowSprite->sprite = SPR_addSprite(&shadow,														 // Sprite defined in resources
-																					 fix32ToInt(bossShadowSprite->posX), // starting X position
-																					 fix32ToInt(bossShadowSprite->posY), // starting Y position
+																					 F32_toInt(bossShadowSprite->posX), // starting X position
+																					 F32_toInt(bossShadowSprite->posY), // starting Y position
 																					 TILE_ATTR(PAL1,										 // specify palette
 																										 1,												 // Tile priority ( with background)
 																										 FALSE,										 // flip the sprite vertically?
@@ -447,8 +447,8 @@ int main(bool hard)
 
 		// Set player position
 		updatePlayer();
-		SPR_setPosition(playerSprite->sprite, fix32ToInt(playerSprite->posX) - playerSprite->offsetX, fix32ToInt(playerSprite->posY) - playerSprite->offsetY);
-		SPR_setPosition(playerShadowSprite->sprite, fix32ToInt(playerShadowSprite->posX) - playerShadowSprite->offsetX, fix32ToInt(playerShadowSprite->posY) - playerShadowSprite->offsetY);
+		SPR_setPosition(playerSprite->sprite, F32_toInt(playerSprite->posX) - playerSprite->offsetX, F32_toInt(playerSprite->posY) - playerSprite->offsetY);
+		SPR_setPosition(playerShadowSprite->sprite, F32_toInt(playerShadowSprite->posX) - playerShadowSprite->offsetX, F32_toInt(playerShadowSprite->posY) - playerShadowSprite->offsetY);
 
 		// update tsprites
 		SPR_update();
