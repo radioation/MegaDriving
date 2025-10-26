@@ -1,8 +1,6 @@
 # Mega Driving
-The code is currently being updated to compile with SGDK 2.11. Some projects 
-have not yet been fixed.
-
-Once updated, earlier versions of SGDK will likely not compile.
+The code has been updated to compile with SGDK 2.11. 
+Earlier versions of SGDK will likely not compile.
 
 ```bash
 find . -name main.c -exec sed -i 's/fix32Div/F32_div/g'  {} +
@@ -36,3 +34,4 @@ The code has been tested on [BlastEM and Real Hardware](https://youtu.be/p99XATF
 
 ## Spacer
 I decided to try adapting my road code to the pseudo 3d effect seen in Space Harrier.
+
