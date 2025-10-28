@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+
+#
+# python3 warp.py  -s road.png  -o test2.png
+#
+
+
 import os,  argparse, logging
 import numpy as np
 import math
@@ -31,15 +37,18 @@ def find_coeffs(pa, pb):
 def main(args, loglevel): 
   logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)
   street_filename = args.street_image
-  grass_filename = args.grass_image
   output_filename = args.output_filename
   reps = args.reps
+  num_steps = args.steps
+  move_lines = args.move_lines
+  step_size = args.move_lines / args.steps
   logging.info("WORKING ON:" + street_filename );
-  with Image.open( street_filename ) as street_img , Image.open( grass_filename ) as grass_img:
+  with Image.open( street_filename ) as street_img :
   
+    orig_width, orig_height = street_img.size 
  
     street_work_img = Image.new('RGB', (street_img.width,  reps * street_img.height ))
-    for r in range(reps):
+    for r in range(reps + 1):
         street_work_img.paste(street_img, (0,  r * street_img.height))  
   
     width, height = street_work_img.size 
@@ -51,22 +60,24 @@ def main(args, loglevel):
     print(f' new width: {new_width} new height: {new_height}')
     print( [(0, 0), (width, 0), (width, height), (0, height)] )
     print(  [(-2 + new_width/2, 0), (2 + new_width/2, 0), (new_width, new_height), (0, new_height)])
-    xshift = 0
-    coeffs = find_coeffs(
-        [(-2 + new_width/2, 0), (2 + new_width/2, 0), (new_width, new_height), (0, new_height)],
-        [(0, 0), (width, 0), (width, height), (0, height)],
-        )
-    print( coeffs )
-    new_img = street_work_img.transform((new_width, new_height), Image.PERSPECTIVE, coeffs, Image.NEAREST)
-    new_img.save( output_filename + "_" + street_filename )
-   
+    offset = 0
+    for step in range(num_steps): 
+      coeffs = find_coeffs(
+          [(-2 + new_width/2, 0), (2 + new_width/2, 0), (new_width, new_height), (0, new_height)],    # dest
+          [(0, orig_height - offset), (width, orig_height- offset), (width, height-orig_height- offset), (0, height-orig_height- offset)],  # source
+          )
+      print( coeffs )
+      new_img = street_work_img.transform((new_width, new_height), Image.PERSPECTIVE, coeffs, Image.NEAREST)
+      offset += step_size
+      new_img.save( output_filename + "_" + str(step) + "_" + street_filename )
+     
 
 
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser( 
-  description = "Create endless scrolling background for SGDK",
+  description = "Create warped pseudo3d images for SGDK",
   epilog = "As an alternative to the commandline, params can be placed in a file, one per line, and specified on the commandline like '%(prog)s @params.conf'.",
   fromfile_prefix_chars = '@' )
   # parameter list
@@ -82,11 +93,6 @@ if __name__ == '__main__':
       help = "street image filename",
       metavar = "ARG")
 
-  parser.add_argument( "-g",
-      "--grass_image",
-      default = 'grass.png',
-      help = "grass image filename",
-      metavar = "ARG")
 
   parser.add_argument( "-o",
       "--output_filename",
@@ -98,9 +104,23 @@ if __name__ == '__main__':
       "--reps",
       default = 50,
       type=int,
-      help = "how much to scale the bottom row by",
+      help = "how many times to repeate the image vertically",
       metavar = "ARG") 
 
+
+  parser.add_argument( "-S",
+      "--steps",
+      default = 12,
+      type=int,
+      help = "How many steps to move the image",
+      metavar = "ARG") 
+
+  parser.add_argument( "-m",
+      "--move_lines",
+      default = 48,
+      type=int,
+      help = "How many lines to move the image",
+      metavar = "ARG") 
 
   args = parser.parse_args()
 
