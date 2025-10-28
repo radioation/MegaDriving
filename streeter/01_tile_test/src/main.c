@@ -39,13 +39,12 @@ int main(bool arg)
 
     s16 offset = 1;
     s16 grassFrame = 0;
-
+    s16 delay = 0;
     while(TRUE) {
-/*
         ///////////////////////////////////////////////////////
         // update the col data
 
-        memcpy(colTiles, ground + (groundFrame * 80),  sizeof(colTiles ));
+        memcpy(colTiles, grass[grassFrame],  sizeof(colTiles ));
         VDP_loadTileData((const u32 *)colTiles, // tile data pointer
                 colIndex,              // index
                 10,                     // number of tiles to load
@@ -54,16 +53,12 @@ int main(bool arg)
         delay +=1;
         if( delay > 3 ) {
             delay = 0;
-            groundFrame += 1;
-            if (groundFrame > 5)
+            grassFrame += 1;
+            if (grassFrame > 5)
             {
-                groundFrame = 0;
+                grassFrame = 0;
             }
         }
-*/
-
-        // let SGDK do its thing.
-        //VDP_waitVSync();
 
         SYS_doVBlankProcess();
     }
