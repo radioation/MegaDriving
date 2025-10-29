@@ -3,60 +3,89 @@
 
 #include "grass.h"
 
-#define VERTICAL_REZ 224  // number of line sin the screen.
+#define VERTICAL_REZ 224  // number of lines in the screen.
 
-#define SCROLL_CENTER 0
+// A is 320 wide, so no need to offset it
+#define SCROLL_CENTER_A 0
+// OTOH back ground B is 512 wide  (512-320)/2 = -96
+#define SCROLL_CENTER_B -96
 
 // Zmap for tracking segment position (80, we're shorter than the lou examples)
 #define ZMAP_LENGTH 80 
-fix16 zmap[ZMAP_LENGTH];
+fastfix16 zmap[ZMAP_LENGTH];
 
+#define SKY_HEIGHT 144
 
 // Road data
-#define ROAD_SEGMENTS_LENGTH 13
+#define ROAD_SEGMENTS_LENGTH 31
 typedef struct
 {
-    fix16 dx;  // rate of change for the road.
-    fix16 bgdx; // rate of change for background. ( ignore for now )
+    fastfix16 dx;  // rate of change for the road.
+    fastfix16 bgdx; // rate of change for background sky scrolling.
 } ROAD_SEGMENT;
 const ROAD_SEGMENT segments[ROAD_SEGMENTS_LENGTH] = {
-        {FIX16(0), FIX16(0)},
-        {FIX16(-0.02), FIX16(0.120)},
-        {FIX16(-0.04), FIX16(0.32)},
-        {FIX16(-0.02), FIX16(0.120)},
-        {FIX16(0), FIX16(0)},
-        {FIX16(0), FIX16(0)},
-        {FIX16(0.06), FIX16(-0.36)},
-        {FIX16(-0.06), FIX16(0.36)},
-        {FIX16(0), FIX16(0)},
-        {FIX16(0.02), FIX16(-0.12)},
-        {FIX16(0), FIX16(0)},
-        {FIX16(-0.03), FIX16(0.18)},
-        {FIX16(0.03), FIX16(-0.18)}};
+        {FASTFIX16(-0.000), FASTFIX16(0.000)},
+        // curve left slowly
+        {FASTFIX16(-0.001), FASTFIX16(-0.04)},
+        {FASTFIX16(-0.002), FASTFIX16(-0.08)},
+        {FASTFIX16(-0.004), FASTFIX16(-0.16)},
+        {FASTFIX16(-0.006), FASTFIX16(-0.24)},
+        {FASTFIX16(-0.008), FASTFIX16(-0.32)},
+        {FASTFIX16(-0.010), FASTFIX16(-0.40)},
+        {FASTFIX16(-0.012), FASTFIX16(-0.48)},
+        {FASTFIX16(-0.014), FASTFIX16(-0.56)},
+        {FASTFIX16(-0.012), FASTFIX16(-0.48)},
+        {FASTFIX16(-0.011), FASTFIX16(-0.44)},
+        {FASTFIX16(-0.010), FASTFIX16(-0.40)},
+        {FASTFIX16(-0.009), FASTFIX16(-0.36)},
+        {FASTFIX16(-0.008), FASTFIX16(-0.32)},
+        {FASTFIX16(-0.004), FASTFIX16(-0.16)},
+        {FASTFIX16(-0.002), FASTFIX16(-0.08)},
+
+        {FASTFIX16(0.000), FASTFIX16(0.000)}, 
+        {FASTFIX16(0.000), FASTFIX16(0.000)}, 
+        // curve right
+        {FASTFIX16(0.030), FASTFIX16(1.20)}, 
+        {FASTFIX16(0.026), FASTFIX16(1.04)}, 
+        {FASTFIX16(0.022), FASTFIX16(0.88)}, 
+        {FASTFIX16(0.018), FASTFIX16(0.72)}, 
+        {FASTFIX16(0.014), FASTFIX16(0.56)}, 
+        {FASTFIX16(0.012), FASTFIX16(0.48)}, 
+        {FASTFIX16(0.008), FASTFIX16(0.32)}, 
+        {FASTFIX16(0.004), FASTFIX16(0.16)}, 
+
+        {FASTFIX16(0.002), FASTFIX16(0.08)}, 
+        {FASTFIX16(0.000), FASTFIX16(0.00)}, 
+        {FASTFIX16(-0.002), FASTFIX16(-0.08)},
+        {FASTFIX16(-0.001), FASTFIX16(-0.04)},
+
+        {FASTFIX16(0.000), FASTFIX16(0.000)}, 
+
+};
 
 
 u16 bottom_segments_index = 0;
 u16 segments_index = 0;
 
 // speed the 'vehicle' moves through the road
-fix16 speed = FIX16(0.00);
+fastfix16 speed = FASTFIX16(0.00);
 
 // Horizontal scrolling values
 s16 HscrollA[VERTICAL_REZ];
 s16 HscrollB[VERTICAL_REZ];
 
 // position variables.
-fix16 segment_position = FIX16(0); // keep track fo the segment position onscreen
-fix16 background_position = FIX16(SCROLL_CENTER); // handle background X position
+fastfix16 segment_position = FASTFIX16(0); // keep track fo the segment position onscreen
+fastfix16 background_position = FASTFIX16(SCROLL_CENTER_A); // handle background X position
 
 
 void updateScrolling()
 {
-    fix16 current_x = FIX16(0); // Lou's pseudo 3d page says to use Half of the screen width,
-                                                            // but I've defined SCROLL_CENTER to handle this
+    fastfix16 current_x = FASTFIX16(0); // Lou's pseudo 3d page says to use Half of the screen width,
+                                                            // but I've defined SCROLL_CENTER_A to handle this
 
-    fix16 dx = FIX16(0);    // Curve amount, constant per segment.
-    fix16 ddx = FIX16(0); // Curve amount, changes per line
+    fastfix16 dx = FASTFIX16(0);    // Curve amount, constant per segment.
+    fastfix16 ddx = FASTFIX16(0); // Curve amount, changes per line
 
 
     // for each line of the screen from the bottom to the top
@@ -64,7 +93,7 @@ void updateScrolling()
     {
         // I've defined the ZMAP to have the bottom of the screen
         // (nearest position) start at zmap[0]
-        fix16 z = zmap[y];
+        fastfix16 z = zmap[y];
         // if line of screen's Z Map position is below segment position
         if (z < segment_position)
         {
@@ -82,19 +111,19 @@ void updateScrolling()
 
         // this_line.x = current_x
         // we'll use horizontal scrolling of BG_A to fake curves.
-        HscrollA[223 - y] = SCROLL_CENTER + F16_toInt(current_x);
+        HscrollA[223 - y] = SCROLL_CENTER_A + FF16_toInt(current_x);
     }
 
     // scroll the background
-    background_position = background_position + segments[bottom_segments_index].bgdx;
-    for (u16 y = 0; y < 120; ++y)
+    background_position = background_position - segments[bottom_segments_index].bgdx;
+    for (u16 y = 0; y < SKY_HEIGHT; ++y)
     {
-        HscrollB[y] = F16_toInt(background_position);
+        HscrollB[y] = FF16_toInt(background_position);
     }
 
     // Move segments
     segment_position = segment_position + speed;
-    if (F16_toInt(segment_position) < 0) // 0 is nearest
+    if (FF16_toInt(segment_position) < 0) // 0 is nearest
     {
         // bottom_segment = segment
         bottom_segments_index = segments_index;
@@ -124,8 +153,8 @@ int main(bool arg)
     // Z = Y_world / (Y_screen - (height_screen / 2))
     for (u16 i = 0; i < ZMAP_LENGTH; ++i)
     {
-        zmap[i] = F16_div(FIX16(-75), FIX16(i) - FIX16(112));
-        KLog_f1("FIX16(", zmap[i]);
+        zmap[i] = FF16_div(FASTFIX16(-75), FASTFIX16(i) - FASTFIX16(112));
+        KLog_f1("FASTFIX16(", zmap[i]);
     }
 
 
@@ -139,8 +168,8 @@ int main(bool arg)
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
     for (int i = 0; i < VERTICAL_REZ; i++)
     {
-        HscrollA[i] = SCROLL_CENTER;
-        HscrollB[i] = SCROLL_CENTER;
+        HscrollA[i] = SCROLL_CENTER_A;
+        HscrollB[i] = SCROLL_CENTER_B;
     }
 
 
@@ -165,8 +194,14 @@ int main(bool arg)
             CPU);
 
     //////////////////////////////////////////////////////////////////////
+    // setup sky
+    PAL_setPalette( PAL1, dark_sky_pal.data, CPU );
+    s16 skyIndex = roadIndex + road_images.tileset->numTile;
+    VDP_drawImageEx(BG_B, &dark_sky, TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, skyIndex), 0, 0, FALSE, TRUE);
+ 
+    //////////////////////////////////////////////////////////////////////
     // Load the grass into VRAM with VDP_loadTileData
-    s16 grassIndex = roadIndex + road_images.tileset->numTile;
+    s16 grassIndex = skyIndex + dark_sky.tileset->numTile;
     u32 grassColumn[80]; // 10 rows in the column * 8 rows per tile is 80 elements.
     memset(grassColumn, 0, sizeof(grassColumn));
     memcpy(grassColumn, grass, sizeof(grassColumn) ); //sizeof(grassColumn)); // copy the column data into ram
@@ -180,7 +215,7 @@ int main(bool arg)
     {
         // make a column out of it.
         VDP_fillTileMapRectInc(BG_B,
-                TILE_ATTR_FULL(PAL2,      // Palette
+                TILE_ATTR_FULL(PAL1,      // Palette
                     0,         // Priority
                     0,         // Flip Vertical
                     0,         // FLip Horizontal
@@ -203,7 +238,7 @@ int main(bool arg)
     segment_position = zmap[ZMAP_LENGTH - 1]; // put it at the farthest away point
 
     // set speed through z
-    speed = FIX16(-0.1);
+    speed = FASTFIX16(-0.1);
 
     while(TRUE) {
           
@@ -243,8 +278,8 @@ int main(bool arg)
                 DMA_QUEUE);
 
         // curve the road with horizontal scrolling.
-        VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE);
-
+        VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE); // TODO: scroll the bottom 80 lines instead of the entire VERTICAL_REZ
+        VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, SKY_HEIGHT, DMA_QUEUE);
         SYS_doVBlankProcess();
     }
 
