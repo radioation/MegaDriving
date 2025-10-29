@@ -742,8 +742,10 @@ int main(bool hard)
 	{
 		zmap[i] = F32_div(FIX32(-75), (FIX32(i) - FIX32(113)));
 		//scale[i] = F16_div(FIX16(1), zmap[i]);
-		//KLog_F3("i: ", FIX16(i), " z: ", zmap[i], " s: ", scale[i]);
-		KLog_F2("i: ", FIX32(i), " z: ", zmap[i]);
+		//KLog_F2("i: ", FIX32(i), " z: ", zmap[i]);
+        char txt[26];
+        fix32ToStr(zmap[i], txt,9 );
+		kprintf("i: %d z: %s", FIX32(i), txt);
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -789,7 +791,9 @@ int main(bool hard)
 	{
 		trackLength = trackLength + segments[i].length;
 		segmentDistances[i] = trackLength;
-		KLog_F2(" i: ", FIX32(i), "  trackLength: ", trackLength);
+        char txt[26];
+        fix32ToStr(trackLength, txt,9 );
+		kprintf("i: %d trackLength: %s", i, txt);
 	}
 
 	//////////////////////////////////////////////////////////////
