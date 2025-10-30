@@ -1,22 +1,3 @@
-* Get rid of FIX32?
-  * FASTFIX16 and FIX16 won't have enough space?  FAStFIX might have
-    enough decimal resolution, but will overflow for some screen positions ( 8-bits -128 to 128 )
-    FIX16 has been too coarse for some road values
-
-  * FASTFIX32 will OVERFLOW up for the  division by (2.7), we can't go to 64-bit numbers
-    here
-
-  * This division can be removed, it was only for keepin the cars in their lanes, 
-    
-```c++
-    char txt1[26];
-    fastFix32ToStr(yToRoadCenter[y], txt1,9 );
-    char txt2[26];
-    fastFix32ToStr(FASTFIX32(carSprite->offsetX), txt2,9 );
-    char txt3[26];
-    fastFix32ToStr(roadSideObjectOffset[y], txt3,9 );
-
-    kprintf("yToRoadCenter[y] %s offset %s roadSideObjectOffset %s", txt1, txt2, txt3 );
 
     fastfix32 temp1 =  (yToRoadCenter[y] - FASTFIX32(carSprite->offsetX));
     fastFix32ToStr(temp1, txt1,9 );
