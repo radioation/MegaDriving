@@ -628,7 +628,7 @@ void update()
     // for each line of the screen from the bottom to the top
     //for (y = 0; y < ZMAP_LENGTH; ++y)  // no longer works because up-hill/down-hill won't be exaclty 1.  ++y isn't valid
 
-    // HILL: draw loop starts at the beginning of the Z map ( nearest = 0 ) and stops at teh end (farthest = ZMAP_LENGTH )
+    // HILL: draw loop starts at the beginning of the Z map ( nearest = 0 ) and stops at the end (farthest = ZMAP_LENGTH )
     //     * flat roads decrements the drawing position each line by 1
     //		 * if we decrement the drawing position by 2 (doubling lines) the road gets drawn twice as high.
     //     * by varying the amount we decrement the drawing position we can draw a hill that starts flat and curves upwards

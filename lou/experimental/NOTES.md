@@ -1,4 +1,30 @@
 
+# Get rid of FIX32?
+
+  * FASTFIX16 and FIX16 won't have enough space?  
+    * FIX16 has been too coarse for some road values
+    * FF16 might have enough decimal resolution, but will overflow for some screen positions ( 8-bits -128 to 128 )
+
+  * FASTFIX32 will OVERFLOW up for the  division by (2.7) (not the end of the world, get rid of 
+    unnecesary divisions.
+    * This division can be removed, it was only for keeping the cars in their lanes,
+
+```c++
+    char txt1[26];
+    fastFix32ToStr(yToRoadCenter[y], txt1,9 );
+    char txt2[26];
+    fastFix32ToStr(FASTFIX32(carSprite->offsetX), txt2,9 );
+    char txt3[26];
+    fastFix32ToStr(roadSideObjectOffset[y], txt3,9 );
+
+    kprintf("yToRoadCenter[y] %s offset %s roadSideObjectOffset %s", txt1, txt2, txt3 );
+
+     fastfix32 temp1 =  (yToRoadCenter[y] - FASTFIX32(carSprite->offsetX));
+     fastFix32ToStr(temp1, txt1,9 );
+
+
+
+
     fastfix32 temp1 =  (yToRoadCenter[y] - FASTFIX32(carSprite->offsetX));
     fastFix32ToStr(temp1, txt1,9 );
     kprintf("temp1 %s ", txt1 );
@@ -50,5 +76,25 @@ KDEBUG MESSAGE: carSprite->posX 122.301500000
 ```
 
   * we generate a LUT at runtime with `_div` but could pre-calc and store it in a C file
+
+
+# LUTs for Track
+* calculating road bends real time invlves quite a bit of looping. 
+  could this be pre-calculated?
+  it's pretty expensive. HScrollA, HScrollB and VscrollB are all arrays of 224 rows
+   of 16-bits each. so 1344 bytes for one type of segment.
+   * HScrollB is just a single value for rows 12 thorugh 168, so no array LUT
+     taking us down to two arrays: 2 * 224 * 2 = 896 bytes for one type of segment.
+     
+     could arbitrarily limit total Y to the bottom 180? 160? rows (720 bytes or 640 bytes)
+
+   * What about segment transitions? Curently making a bunch of segments
+     and allowing update() to check if two are visible (and then apply differnt
+     dx and dy's to the road). 
+  
+   * could store every n-elements in LUT and quick average with `>> 1`?
+   
+
+
 
 
