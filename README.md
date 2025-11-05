@@ -26,12 +26,22 @@ cycling used on the grass and road in C.  So the code is a mix of C and some ass
 The code has been tested on [BlastEM and Real Hardware](https://youtu.be/p99XATFhSpo)
 
 ### TODO
-* Improve steering code.
+* Make it faster. It works but it's not really game-worthy.
+* Improve steering code, feels "wrong" right now.
 * Look into smoothing road side object and car motion in the Y direction.
 * Add readme.md files to explain the code in each example.
-* Look at making my own fixed-point implementation for more decimals
-
+* Read up on AI and make it game~ish/"playable"
 
 ## Spacer
 I decided to try adapting my road code to the pseudo 3d effect seen in Space Harrier.
+It'll probably end up in a lightgun game if I ever get around to it.
+
+## Streeter
+Just an attempt to replicate "Street Racer"'s road.
+
+## Mesozoic 
+...
+
+
+
 
