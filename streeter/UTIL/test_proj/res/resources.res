@@ -16,7 +16,7 @@ SPRITE markers "sprites/map_markers.png" 1 1 NONE
 SPRITE knuckles "sprites/knuckles.png" 7 4 NONE 2
 
 # PAL2 
-SPRITE robotnik "sprites/robotnik.png" 7 4 NONE 2
+SPRITE robotnik "sprites/robotnik.png" 7 4 NONE 6
 
 
 
