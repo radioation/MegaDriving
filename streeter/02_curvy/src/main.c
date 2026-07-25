@@ -10,6 +10,8 @@
 // OTOH back ground B is 512 wide  (512-320)/2 = -96
 #define SCROLL_CENTER_B -96
 
+u32 lastLoggedFPS = 0;
+
 // Zmap for tracking segment position (80, we're shorter than the lou examples)
 #define ZMAP_LENGTH 80 
 fastfix16 zmap[ZMAP_LENGTH];
@@ -81,6 +83,7 @@ fastfix16 background_position = FASTFIX16(SCROLL_CENTER_A); // handle background
 
 void updateScrolling()
 {
+
     fastfix16 current_x = FASTFIX16(0); // Lou's pseudo 3d page says to use Half of the screen width,
                                                             // but I've defined SCROLL_CENTER_A to handle this
 
@@ -244,7 +247,10 @@ int main(bool arg)
           
         ///////////////////////////////////////////////////////
         // update scrolling values
+        kprintf("Update scrolling");
+        BLASTEM_PROFIL_START
         updateScrolling();
+        BLASTEM_PROFIL_END
 
 
         ///////////////////////////////////////////////////////
@@ -280,6 +286,15 @@ int main(bool arg)
         // curve the road with horizontal scrolling.
         VDP_setHorizontalScrollLine(BG_A, 0, HscrollA, VERTICAL_REZ, DMA_QUEUE); // TODO: scroll the bottom 80 lines instead of the entire VERTICAL_REZ
         VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, SKY_HEIGHT, DMA_QUEUE);
+        u32 fps = SYS_getFPS();
+        if (fps != lastLoggedFPS)
+        {
+            kprintf("FPS: %d", fps);
+            lastLoggedFPS = fps;
+        }
+
+
+
         SYS_doVBlankProcess();
     }
 

@@ -4,6 +4,7 @@
 #include "grass.h"
 #include "track.h"
 
+u32 lastLoggedFPS = 0;
 
 #define VERTICAL_REZ 224  // number of lines in the screen.
 
@@ -130,7 +131,10 @@ int main(bool arg)
           
         ///////////////////////////////////////////////////////
         // update scrolling values
+        kprintf("updateScrolling()");
+        BLASTEM_PROFIL_START
         updateScrolling();
+        BLASTEM_PROFIL_END
 
 
         ///////////////////////////////////////////////////////
@@ -170,6 +174,15 @@ int main(bool arg)
         // curve the road with horizontal scrolling.
         VDP_setHorizontalScrollLine(BG_A, ROAD_START_LINE, HscrollA, ZMAP_LENGTH, DMA_QUEUE); // TODO: scroll the bottom 80 lines instead of the entire VERTICAL_REZ
         VDP_setHorizontalScrollLine(BG_B, 0, HscrollB, SKY_HEIGHT, DMA_QUEUE);
+        u32 fps = SYS_getFPS();
+        if (fps != lastLoggedFPS)
+        {
+            kprintf("FPS: %d", fps);
+            lastLoggedFPS = fps;
+        }
+
+
+
         SYS_doVBlankProcess();
     }
 
